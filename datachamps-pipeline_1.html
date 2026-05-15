@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta name="theme-color" content="#0b2d2f" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Datachamps — Pipeline</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <!-- Non-blocking font load: page renders instantly, fonts swap in when ready -->
+  <link rel="preload"
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=DM+Mono:wght@400;500&display=swap"
+        as="style"
+        onload="this.onload=null;this.rel='stylesheet'" />
+  <noscript>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  </noscript>
+  <!-- DNS prefetch for GAS endpoint -->
+  <link rel="dns-prefetch" href="https://script.google.com" />
+
+  <style>
+    /* ═══════════════════════════════════════════════════════
+       DESIGN SYSTEM — Datachamps Pipeline Follow-Up v1.0
+       Aesthetic: Refined data-tool. Deep teal + warm cream.
+    ═══════════════════════════════════════════════════════ */
+    :root {
+      --teal-950: #071e20;
+      --teal-900: #0b2d2f;
+      --teal-700: #0f4649;
+      --teal-500: #01696f;
+      --teal-400: #1e8a91;
+      --teal-200: #8ecdd1;
+      --teal-100: #c6e8ea;
+      --teal-50:  #eaf6f7;
+
+      --cream:  #f6f3ed;
+      --paper:  #ffffff;
+      --sand:   #ede9e1;
+      --stone:  #c8c3b8;
+      --ink:    #18160f;
+      --dim:    #5a5750;
+      --muted:  #8a8680;
+
+      --hot:      #dc2626; --hot-bg:   #fff1f1; --hot-border:   #fecaca;
+      --warm:     #c2610a; --warm-bg:  #fff8ed; --warm-border:  #fed7aa;
+      --cold:     #1d4ed8; --cold-bg:  #eff4ff; --cold-border:  #bfdbfe;
+      --book:     #047857; --book-bg:  #edfdf5; --book-border:  #a7f3d0;
+      --out:      #6b7280; --out-bg:   #f8f9fa; --out-border:   #e5e7eb;
+      --concluded:#01696f; --conc-bg:  #eaf6f7; --conc-border:  #8ecdd1;
+
+      --r-sm: 6px; --r-md: 10px; --r-lg: 14px; --r-xl: 18px;
+
+      --shadow-sm:   0 1px 3px rgba(7,30,32,.08), 0 2px 8px rgba(7,30,32,.05);
+      --shadow-md:   0 2px 8px rgba(7,30,32,.09), 0 6px 20px rgba(7,30,32,.07);
+      --shadow-teal: 0 4px 18px rgba(1,105,111,.28);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { height: 100%; -webkit-text-size-adjust: 100%; }
+    body {
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      min-height: 100%;
+      -webkit-font-smoothing: antialiased;
+      overscroll-behavior: none;
+    }
+
+    /* ── SCREEN SYSTEM ─────────────────────────────────────
+       Pure CSS toggle — NO history API, NO pushState.
+       This fixes: back button, page-won't-reopen, all of it.
+    ──────────────────────────────────────────────────────── */
+    .screen { display: none; }
+    .screen.active { display: block; }
+    #screen-loading.active { display: flex; }
+    #screen-error.active   { display: flex; }
+
+    /* ── LOADING ───────────────────────────────────────────── */
+    #screen-loading {
+      position: fixed; inset: 0; z-index: 999;
+      background: var(--teal-900);
+      flex-direction: column;
+      align-items: center; justify-content: center; gap: 20px;
+    }
+    .loader-brand {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .loader-d {
+      width: 34px; height: 34px; background: var(--teal-500);
+      border-radius: 8px; display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 800; color: #fff; line-height: 1;
+    }
+    .loader-name { font-size: 17px; font-weight: 700; color: #fff; letter-spacing: -.2px; }
+    .loader-ring {
+      width: 28px; height: 28px;
+      border: 2.5px solid rgba(255,255,255,.15);
+      border-top-color: var(--teal-200);
+      border-radius: 50%;
+      animation: spin .75s linear infinite;
+    }
+    .loader-txt { font-size: 12px; color: var(--teal-100); font-weight: 500; letter-spacing: .3px; }
+    .loader-slow {
+      font-size: 11px; color: var(--teal-200); opacity: .65;
+      letter-spacing: .2px; display: none; text-align: center;
+      max-width: 240px; line-height: 1.5;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── ERROR ─────────────────────────────────────────────── */
+    #screen-error {
+      min-height: 100vh;
+      align-items: center; justify-content: center; padding: 24px;
+    }
+    .err-card {
+      background: var(--paper); border-radius: var(--r-xl);
+      padding: 36px 24px; text-align: center;
+      max-width: 360px; width: 100%;
+      box-shadow: var(--shadow-md);
+    }
+    .err-icon { font-size: 40px; margin-bottom: 14px; }
+    .err-title { font-size: 18px; font-weight: 700; color: var(--ink); margin-bottom: 8px; }
+    .err-body  { font-size: 14px; color: var(--dim); line-height: 1.6; }
+
+    /* ── HEADER ────────────────────────────────────────────── */
+    .hdr {
+      background: var(--teal-900); height: 54px; padding: 0 16px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 50;
+      box-shadow: 0 2px 12px rgba(0,0,0,.28);
+    }
+    .hdr-brand { display: flex; align-items: center; gap: 9px; }
+    .hdr-d {
+      width: 28px; height: 28px; background: var(--teal-500);
+      border-radius: 6px; display: flex; align-items: center; justify-content: center;
+      font-size: 15px; font-weight: 800; color: #fff; line-height: 1; flex-shrink: 0;
+    }
+    .hdr-name { font-size: 15px; font-weight: 700; color: #fff; letter-spacing: -.2px; }
+    .hdr-date {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px; color: var(--teal-200); font-weight: 500; letter-spacing: .3px;
+    }
+
+    /* ── SUB BAR ───────────────────────────────────────────── */
+    .sub {
+      background: var(--teal-700); padding: 10px 16px;
+      min-height: 42px; display: flex; align-items: center;
+    }
+    .sub-in {
+      max-width: 560px; margin: 0 auto; width: 100%;
+      display: flex; align-items: center;
+    }
+
+    /* ── PROGRESS BAR (list screen only) ──────────────────── */
+    .prog-section {
+      background: var(--teal-700);
+      padding: 0 16px 12px;
+    }
+    .prog-inner {
+      max-width: 560px; margin: 0 auto; width: 100%;
+    }
+    .prog-header {
+      display: flex; justify-content: space-between;
+      align-items: center; margin-bottom: 6px;
+    }
+    .prog-lbl {
+      font-size: 10px; font-weight: 700; letter-spacing: .6px;
+      text-transform: uppercase; color: var(--teal-100); opacity: .8;
+    }
+    .prog-count {
+      font-size: 11px; font-weight: 700;
+      color: var(--teal-200); font-family: 'DM Mono', monospace;
+    }
+    .prog-track {
+      height: 5px; background: rgba(255,255,255,.15);
+      border-radius: 99px; overflow: hidden;
+    }
+    .prog-fill {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, var(--teal-200), #b8e8eb);
+      border-radius: 99px;
+      transition: width .55s cubic-bezier(.4,0,.2,1);
+    }
+    .prog-fill.complete {
+      background: linear-gradient(90deg, #6ee7b7, #34d399);
+    }
+    .sub-greet { font-size: 14px; font-weight: 700; color: #fff; }
+    .sub-ct { font-size: 12px; color: var(--teal-100); font-weight: 500; margin-left: 8px; }
+    .back-btn {
+      font-size: 13px; font-weight: 600; color: #fff;
+      background: transparent; border: none; cursor: pointer; font-family: inherit;
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 8px 0; min-height: 44px;
+      -webkit-tap-highlight-color: transparent; touch-action: manipulation; opacity: .9;
+    }
+    .back-btn:hover { opacity: 1; }
+    .back-btn:active { opacity: .7; }
+    .sub-sep  { color: var(--teal-200); opacity: .5; margin: 0 8px; }
+    .sub-ctx  { font-size: 13px; color: var(--teal-100); font-weight: 500; }
+
+    /* ── CONTAINER ─────────────────────────────────────────── */
+    .ctr { max-width: 560px; margin: 0 auto; padding: 18px 14px 72px; }
+
+    /* ── SECTION LABEL ─────────────────────────────────────── */
+    .sec-lbl {
+      font-size: 10px; font-weight: 700; letter-spacing: 1px;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 12px;
+    }
+
+    /* ── TASK CARDS ────────────────────────────────────────── */
+    .tc {
+      background: var(--paper);
+      border: 1.5px solid var(--sand);
+      border-radius: var(--r-lg);
+      padding: 16px; margin-bottom: 10px;
+      display: flex; align-items: center; gap: 12px;
+      cursor: pointer; box-shadow: var(--shadow-sm);
+      transition: border-color .15s, box-shadow .15s, transform .1s;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation; user-select: none;
+      animation: slideUp .3s ease both;
+    }
+    .tc:hover { border-color: var(--teal-500); box-shadow: var(--shadow-md); }
+    .tc:active { transform: scale(.985); }
+    .tc:nth-child(2) { animation-delay: .05s; }
+    .tc:nth-child(3) { animation-delay: .10s; }
+    .tc:nth-child(4) { animation-delay: .15s; }
+    .tc:nth-child(5) { animation-delay: .20s; }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .tc-body { flex: 1; min-width: 0; }
+    .tc-top  { margin-bottom: 7px; }
+    .tc-client {
+      font-size: 16px; font-weight: 700; color: var(--teal-900);
+      letter-spacing: -.3px; margin-bottom: 3px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .tc-proj {
+      font-size: 13px; color: var(--dim); font-weight: 500;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .tc-arrow { font-size: 18px; color: var(--teal-400); flex-shrink: 0; }
+
+    /* ── BADGES ────────────────────────────────────────────── */
+    .badge {
+      display: inline-flex; align-items: center;
+      padding: 3px 8px; border-radius: 20px;
+      font-size: 10px; font-weight: 700; letter-spacing: .5px;
+      text-transform: uppercase; border: 1px solid transparent;
+    }
+    .badge::before { content: '●'; margin-right: 4px; font-size: 7px; }
+    .badge-hot       { background: var(--hot-bg);  color: var(--hot);  border-color: var(--hot-border); }
+    .badge-warm      { background: var(--warm-bg); color: var(--warm); border-color: var(--warm-border); }
+    .badge-cold      { background: var(--cold-bg); color: var(--cold); border-color: var(--cold-border); }
+    .badge-orderbook { background: var(--book-bg); color: var(--book); border-color: var(--book-border); }
+    .badge-out       { background: var(--out-bg);  color: var(--out);  border-color: var(--out-border); }
+    .badge-concluded { background: var(--conc-bg); color: var(--concluded); border-color: var(--conc-border); }
+    .badge-default   { background: var(--out-bg);  color: var(--out);  border-color: var(--out-border); }
+
+    /* ── EMPTY STATE ───────────────────────────────────────── */
+    .empty { text-align: center; padding: 64px 20px; }
+    .empty-ic  { font-size: 44px; margin-bottom: 14px; }
+    .empty-ttl { font-size: 20px; font-weight: 700; color: var(--teal-900); margin-bottom: 8px; }
+    .empty-msg { font-size: 14px; color: var(--dim); line-height: 1.6; }
+
+    /* ── CONTEXT CARD (form screen) ────────────────────────── */
+    .ctx {
+      background: var(--paper); border: 1px solid var(--sand);
+      border-radius: var(--r-lg); padding: 16px; margin-bottom: 14px;
+      box-shadow: var(--shadow-sm);
+    }
+    .ctx-badge   { margin-bottom: 10px; }
+    .ctx-client  { font-size: 19px; font-weight: 800; color: var(--teal-900); letter-spacing: -.4px; margin-bottom: 3px; }
+    .ctx-proj    { font-size: 13px; color: var(--dim); font-weight: 500; margin-bottom: 14px; }
+    .ctx-div     { height: 1px; background: var(--sand); margin-bottom: 12px; }
+    .ctx-lbl     { font-size: 10px; font-weight: 700; letter-spacing: .7px; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+    .ctx-val     { font-size: 14px; color: var(--ink); line-height: 1.5; }
+
+    /* ── FORM CARD ─────────────────────────────────────────── */
+    .fc {
+      background: var(--paper);
+      border: 1.5px solid var(--teal-500);
+      border-radius: var(--r-lg); padding: 18px;
+      box-shadow: var(--shadow-teal);
+    }
+    .fc-ttl {
+      font-size: 13px; font-weight: 700; color: var(--teal-900);
+      margin-bottom: 18px; padding-bottom: 14px;
+      border-bottom: 1px solid var(--sand);
+    }
+    .fg   { margin-bottom: 18px; }
+    .fl   { display: block; font-size: 13px; font-weight: 600; color: var(--teal-900); margin-bottom: 4px; }
+    .fh   { font-size: 11px; color: var(--muted); margin-bottom: 7px; line-height: 1.4; }
+    .req  { color: #dc2626; }
+    .ft, .fi, select.fi {
+      width: 100%; border: 1.5px solid var(--stone);
+      border-radius: var(--r-sm); padding: 11px 12px;
+      font-size: 14px; font-family: inherit;
+      color: var(--ink); background: var(--cream);
+      outline: none;
+      transition: border-color .15s, background .15s, box-shadow .15s;
+      -webkit-appearance: none;
+    }
+    .ft { min-height: 88px; resize: vertical; }
+    select.fi {
+      cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238a8680' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 38px;
+    }
+    .ft:focus, .fi:focus, select.fi:focus {
+      border-color: var(--teal-500); background: var(--paper);
+      box-shadow: 0 0 0 3px rgba(1,105,111,.10);
+    }
+    .fbtns { display: flex; gap: 10px; margin-top: 22px; }
+    .btn-cancel {
+      flex: 1; background: transparent;
+      border: 1.5px solid var(--stone); border-radius: var(--r-sm);
+      padding: 12px; font-size: 14px; font-family: inherit;
+      font-weight: 600; color: var(--dim); cursor: pointer;
+      transition: border-color .15s, color .15s;
+      -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+    }
+    .btn-cancel:hover  { border-color: var(--ink); color: var(--ink); }
+    .btn-cancel:active { transform: scale(.98); }
+    .btn-save {
+      flex: 2; background: var(--teal-500);
+      border: none; border-radius: var(--r-sm);
+      padding: 12px; font-size: 15px; font-family: inherit;
+      font-weight: 700; color: #fff; cursor: pointer;
+      transition: background .15s;
+      box-shadow: var(--shadow-teal);
+      -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+    }
+    .btn-save:hover    { background: var(--teal-700); }
+    .btn-save:active   { background: var(--teal-950); transform: scale(.98); }
+    .btn-save:disabled { background: var(--stone); color: var(--muted); cursor: not-allowed; box-shadow: none; }
+
+    /* ── STATUS MESSAGES ───────────────────────────────────── */
+    .st-msg {
+      margin-top: 14px; padding: 12px; border-radius: var(--r-sm);
+      font-size: 13px; font-weight: 600; text-align: center;
+      display: none; line-height: 1.4;
+    }
+    .st-ok  { display: block; background: #edfdf5; color: #047857; border: 1px solid #a7f3d0; }
+    .st-err { display: block; background: #fff1f1; color: #dc2626; border: 1px solid #fecaca; }
+
+    /* ── SUCCESS SCREEN ────────────────────────────────────── */
+    .sw { text-align: center; padding: 56px 24px; }
+    .sw-ring {
+      width: 72px; height: 72px; background: var(--teal-500);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 22px; box-shadow: var(--shadow-teal);
+      animation: popIn .4s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    @keyframes popIn {
+      from { transform: scale(0); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+    .sw-check { font-size: 30px; color: #fff; line-height: 1; font-weight: 700; }
+    .sw-ttl   { font-size: 23px; font-weight: 800; color: var(--teal-900); letter-spacing: -.5px; margin-bottom: 10px; }
+    .sw-msg   { font-size: 14px; color: var(--dim); line-height: 1.65; margin-bottom: 32px; }
+    .sw-msg strong { color: var(--teal-900); }
+    .btn-back-list {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--teal-500); color: #fff;
+      border: none; border-radius: var(--r-sm);
+      padding: 13px 26px; font-size: 14px; font-weight: 700; font-family: inherit;
+      cursor: pointer; box-shadow: var(--shadow-teal);
+      -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+      transition: background .15s;
+    }
+    .btn-back-list:hover { background: var(--teal-700); }
+
+    /* ── DATE QUICK-PICK PILLS ─────────────────────────────── */
+    .date-pills { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
+    .date-pill {
+      padding: 5px 11px; border: 1.5px solid var(--stone);
+      border-radius: 20px; font-size: 12px; font-weight: 600;
+      color: var(--muted); background: transparent;
+      cursor: pointer; font-family: inherit;
+      transition: border-color .12s, color .12s, background .12s;
+      -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+    }
+    .date-pill:hover  { border-color: var(--teal-500); color: var(--teal-500); background: var(--teal-50); }
+    .date-pill:active { transform: scale(.96); }
+
+    /* ── LAST UPDATE BOX (context card) ────────────────────── */
+    .ctx-update {
+      font-size: 13px; color: var(--dim); line-height: 1.5;
+      background: var(--cream); border: 1px solid var(--sand);
+      border-radius: var(--r-sm); padding: 9px 11px; margin-top: 6px;
+      font-style: italic;
+    }
+
+    /* ── FOOTER ────────────────────────────────────────────── */
+    .footer {
+      text-align: center; font-size: 11px; color: var(--stone);
+      padding: 0 16px 28px; letter-spacing: .2px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════
+     SCREEN 0: LOADING
+════════════════════════════════════════════════════ -->
+<div id="screen-loading" class="screen active">
+  <div class="loader-brand">
+    <div class="loader-d">D</div>
+    <div class="loader-name">datachamps</div>
+  </div>
+  <div class="loader-ring"></div>
+  <div class="loader-txt">Loading your tasks…</div>
+  <div class="loader-slow" id="loader-slow">Taking a bit longer than usual.<br>Please stay on this page…</div>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     SCREEN E: ERROR
+════════════════════════════════════════════════════ -->
+<div id="screen-error" class="screen">
+  <div class="err-card">
+    <div class="err-icon">⚠️</div>
+    <div class="err-title">Couldn't load tasks</div>
+    <div class="err-body" id="err-txt">
+      Something went wrong. Close and reopen the link from WhatsApp.
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     SCREEN 1: TASK LIST
+════════════════════════════════════════════════════ -->
+<div id="screen-list" class="screen">
+  <header class="hdr">
+    <div class="hdr-brand">
+      <div class="hdr-d">D</div>
+      <div class="hdr-name">datachamps</div>
+    </div>
+    <div class="hdr-date" id="hdr-date"></div>
+  </header>
+  <div class="sub">
+    <div class="sub-in">
+      <span class="sub-greet" id="list-greet"></span>
+      <span class="sub-ct"   id="list-ct"></span>
+    </div>
+  </div>
+  <!-- Progress bar — hidden until tasks load -->
+  <div class="prog-section" id="prog-section" style="display:none">
+    <div class="prog-inner">
+      <div class="prog-header">
+        <span class="prog-lbl">Progress</span>
+        <span class="prog-count" id="prog-count">0 / 0</span>
+      </div>
+      <div class="prog-track">
+        <div class="prog-fill" id="prog-fill"></div>
+      </div>
+    </div>
+  </div>
+  <div class="ctr">
+    <div class="sec-lbl" id="list-lbl"></div>
+    <div id="task-list"></div>
+  </div>
+  <div class="footer">Datachamps · Democratizing Data Analytics</div>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     SCREEN 2: UPDATE FORM
+════════════════════════════════════════════════════ -->
+<div id="screen-form" class="screen">
+  <header class="hdr">
+    <div class="hdr-brand">
+      <div class="hdr-d">D</div>
+      <div class="hdr-name">datachamps</div>
+    </div>
+    <div class="hdr-date" id="form-hdr-date"></div>
+  </header>
+  <div class="sub">
+    <div class="sub-in">
+      <!-- Back button — onclick wired directly, always works -->
+      <button class="back-btn" onclick="showList()">← Back</button>
+      <span class="sub-sep">|</span>
+      <span class="sub-ctx" id="form-ctx-lbl"></span>
+    </div>
+  </div>
+  <div class="ctr">
+    <div class="ctx" id="ctx-card"></div>
+    <div class="fc">
+      <div class="fc-ttl">📝 Log your update</div>
+      <div class="fg">
+        <label class="fl" for="f-update">What happened? <span class="req">*</span></label>
+        <div class="fh">Briefly describe today's follow-up</div>
+        <textarea id="f-update" class="ft" placeholder="e.g. Spoke with Viraj, he confirmed budget approval…"></textarea>
+      </div>
+      <div class="fg">
+        <label class="fl" for="f-action">Next Action Item <span class="req">*</span></label>
+        <div class="fh">What needs to happen next?</div>
+        <textarea id="f-action" class="ft" placeholder="e.g. Follow up in 3 days with revised proposal…"></textarea>
+      </div>
+      <div class="fg">
+        <label class="fl" for="f-cat">Category <span class="req">*</span></label>
+        <div class="fh">Update if the lead status has changed</div>
+        <select id="f-cat" class="fi">
+          <option value="1. Hot">🔴 Hot</option>
+          <option value="2. Warm">🟡 Warm</option>
+          <option value="3. Cold">🔵 Cold</option>
+          <option value="4. Orderbook">🟢 Orderbook</option>
+          <option value="5. Out">⚪ Out</option>
+          <option value="6. Concluded">✅ Concluded</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label class="fl" for="f-date">Next Follow-Up Date <span class="req">*</span></label>
+        <div class="fh">When should this appear again?</div>
+        <div class="date-pills">
+          <button type="button" class="date-pill" onclick="setDatePill(3)">3 days</button>
+          <button type="button" class="date-pill" onclick="setDatePill(7)">1 week</button>
+          <button type="button" class="date-pill" onclick="setDatePill(14)">2 weeks</button>
+          <button type="button" class="date-pill" onclick="setDatePill(30)">1 month</button>
+        </div>
+        <input type="date" id="f-date" class="fi" />
+      </div>
+      <div id="st-msg" class="st-msg"></div>
+      <div class="fbtns">
+        <!-- Cancel — onclick wired directly, always works -->
+        <button class="btn-cancel" onclick="showList()">Cancel</button>
+        <button class="btn-save"   onclick="submitUpdate()" id="btn-save">Save to Sheet</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     SCREEN 3: SUCCESS
+════════════════════════════════════════════════════ -->
+<div id="screen-success" class="screen">
+  <header class="hdr">
+    <div class="hdr-brand">
+      <div class="hdr-d">D</div>
+      <div class="hdr-name">datachamps</div>
+    </div>
+  </header>
+  <div class="ctr">
+    <div class="sw">
+      <div class="sw-ring"><div class="sw-check">✓</div></div>
+      <div class="sw-ttl">Sheet Updated!</div>
+      <div class="sw-msg" id="sw-msg">Your update has been saved.</div>
+      <!-- Back to list — onclick wired directly, always works -->
+      <button class="btn-back-list" onclick="showList()">← Back to my tasks</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════
+   ⚙️  CONFIG — paste your GAS deployment URL here
+══════════════════════════════════════════════════════ */
+var GAS_URL = 'https://script.google.com/macros/s/AKfycbwRvhxxaf7t1Vnvqp22cbSfwTBhSW1wi14iY0UQRuiWix-8P57a_x17cIgxQHX3DgzV-Q/exec';
+
+/* ══════════════════════════════════════════════════════
+   CATEGORY OPTIONS
+   Must match GAS CONFIG.CATEGORY_OPTIONS exactly.
+   Update here if you add/rename a category in the sheet.
+══════════════════════════════════════════════════════ */
+var CATEGORY_OPTIONS = [
+  { value: '1. Hot',       label: 'Hot',       emoji: '🔴' },
+  { value: '2. Warm',      label: 'Warm',       emoji: '🟡' },
+  { value: '3. Cold',      label: 'Cold',       emoji: '🔵' },
+  { value: '4. Orderbook', label: 'Orderbook',  emoji: '🟢' },
+  { value: '5. Out',       label: 'Out',        emoji: '⚪' },
+  { value: '6. Concluded', label: 'Concluded',  emoji: '✅' }
+];
+
+/* ══════════════════════════════════════════════════════
+   STATE — single source of truth
+══════════════════════════════════════════════════════ */
+var S = { person: '', tasks: [], current: null, total: 0, done: 0 };
+
+/* ══════════════════════════════════════════════════════
+   UTILS
+══════════════════════════════════════════════════════ */
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function todayISO() {
+  var d = new Date();
+  return d.getFullYear() + '-' +
+    String(d.getMonth()+1).padStart(2,'0') + '-' +
+    String(d.getDate()).padStart(2,'0');
+}
+
+function plusDays(n) {
+  var d = new Date(); d.setDate(d.getDate() + n);
+  return d.getFullYear() + '-' +
+    String(d.getMonth()+1).padStart(2,'0') + '-' +
+    String(d.getDate()).padStart(2,'0');
+}
+
+function fmtDate(iso) {
+  var p = iso.split('-');
+  var mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return parseInt(p[2]) + ' ' + mo[parseInt(p[1])-1] + ' ' + p[0];
+}
+
+function badge(t) {
+  return '<span class="badge ' + esc(t.badgeClass) + '">' + esc(t.categoryLabel) + '</span>';
+}
+
+/* Extracts the most recent update from the chained log.
+   Sheet format: "[15 May 2026 | Nandan] Text >>> [older]..."
+   Returns: "Text" only — no timestamp, no chain. */
+function extractLatestUpdate(s) {
+  var raw = String(s || '').trim();
+  if (!raw || raw === '-') return null;
+  var mostRecent = raw.split('>>>')[0].trim();
+  return mostRecent.replace(/^\[.*?\]\s*/, '').trim() || null;
+}
+
+/* Sets the date input to today + N days (quick-pick pills) */
+function setDatePill(days) {
+  var el = document.getElementById('f-date');
+  if (el) el.value = plusDays(days);
+}
+
+/* ══════════════════════════════════════════════════════
+   SCREEN MANAGER
+   Pure CSS .active swap — no history API whatsoever.
+   Fixes: back button, page won't reopen, all of it.
+══════════════════════════════════════════════════════ */
+var ALL_SCREENS = ['screen-loading','screen-error','screen-list','screen-form','screen-success'];
+
+function showScreen(id) {
+  ALL_SCREENS.forEach(function(s) {
+    document.getElementById(s).classList.toggle('active', s === id);
+  });
+  window.scrollTo(0, 0);
+}
+
+/* ══════════════════════════════════════════════════════
+   SHOW LIST (Screen 1) — always re-renders so progress
+   bar and task count stay accurate after submissions.
+══════════════════════════════════════════════════════ */
+function showList() {
+  renderList();
+}
+
+/* ══════════════════════════════════════════════════════
+   SHOW FORM (Screen 2)
+══════════════════════════════════════════════════════ */
+function showForm(idx) {
+  S.current = S.tasks[idx];
+  var t = S.current;
+
+  // Sub-bar label
+  document.getElementById('form-ctx-lbl').textContent = S.person + "'s tasks";
+  document.getElementById('form-hdr-date').textContent = document.getElementById('hdr-date').textContent;
+
+  // Context card — shows client, action point, and last logged update
+  var lastUpd = extractLatestUpdate(t.latestUpdate);
+  document.getElementById('ctx-card').innerHTML =
+    '<div class="ctx-badge">'  + badge(t) + '</div>' +
+    '<div class="ctx-client">' + esc(t.clientName)  + '</div>' +
+    (t.projectName ? '<div class="ctx-proj">' + esc(t.projectName) + '</div>' : '') +
+    '<div class="ctx-div"></div>' +
+    '<div class="ctx-lbl">Current Action Point</div>' +
+    '<div class="ctx-val">' + esc(t.actionPoint) + '</div>' +
+    (lastUpd
+      ? '<div class="ctx-div" style="margin-top:12px"></div>' +
+        '<div class="ctx-lbl">Last Logged Update</div>' +
+        '<div class="ctx-update">' + esc(lastUpd) + '</div>'
+      : '');
+
+  // Reset form fields
+  document.getElementById('f-update').value = '';
+  document.getElementById('f-action').value = '';
+
+  // Pre-select current category in dropdown
+  var catSel = document.getElementById('f-cat');
+  if (catSel) catSel.value = t.categoryRaw || '1. Hot';
+
+  var dateInput = document.getElementById('f-date');
+  dateInput.value = plusDays(3);
+  dateInput.min   = todayISO();
+  var st = document.getElementById('st-msg');
+  st.className = 'st-msg'; st.textContent = '';
+  var btn = document.getElementById('btn-save');
+  btn.disabled = false; btn.textContent = 'Save to Sheet';
+
+  showScreen('screen-form');
+}
+
+/* ══════════════════════════════════════════════════════
+   SUBMIT → GAS update action
+══════════════════════════════════════════════════════ */
+function submitUpdate() {
+  var upd = document.getElementById('f-update').value.trim();
+  var act = document.getElementById('f-action').value.trim();
+  var dt  = document.getElementById('f-date').value.trim();
+  var cat = (document.getElementById('f-cat') ? document.getElementById('f-cat').value : '').trim();
+  var btn = document.getElementById('btn-save');
+  var st  = document.getElementById('st-msg');
+
+  if (!upd) { setSt(false, 'Please describe what happened.');       return; }
+  if (!act) { setSt(false, 'Please fill in the next action item.'); return; }
+  if (!dt)  { setSt(false, 'Please pick a follow-up date.');        return; }
+
+  btn.disabled = true; btn.textContent = 'Saving…';
+  st.className = 'st-msg'; st.textContent = '';
+
+  var origCat = S.current.categoryRaw || '';
+
+  var p = new URLSearchParams({
+    action:       'update',
+    rowNumber:    S.current.rowNumber,
+    latestUpdate: upd,
+    actionPoint:  act,
+    nextFollowUp: dt,
+    category:     cat,
+    person:       S.person
+  });
+
+  fetch(GAS_URL + '?' + p.toString(), { method:'GET', mode:'cors', redirect:'follow' })
+    .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(function(d) {
+      if (d.success) {
+        // ── Remove submitted task from list & update progress ──
+        var idx = S.tasks.indexOf(S.current);
+        if (idx !== -1) { S.tasks.splice(idx, 1); }
+        S.done++;
+
+        var catChanged = cat && cat !== origCat;
+        document.getElementById('sw-msg').innerHTML =
+          '<strong>' + esc(S.current.clientName) + '</strong> has been updated.<br>' +
+          'Update, action &amp; follow-up date saved to sheet.' +
+          (catChanged
+            ? '<br>Category changed to <strong>' + esc(cat.replace(/^\d+\.\s*/, '')) + '</strong>.'
+            : '');
+        showScreen('screen-success');
+      } else {
+        setSt(false, d.message || 'Update failed. Please try again.');
+        btn.disabled = false; btn.textContent = 'Save to Sheet';
+      }
+    })
+    .catch(function(err) {
+      setSt(false, 'Network error. Check your connection and try again.');
+      btn.disabled = false; btn.textContent = 'Save to Sheet';
+      console.error('Submit error:', err);
+    });
+}
+
+function setSt(ok, msg) {
+  var el = document.getElementById('st-msg');
+  el.textContent = (ok ? '✅ ' : '❌ ') + msg;
+  el.className = 'st-msg ' + (ok ? 'st-ok' : 'st-err');
+}
+
+/* ══════════════════════════════════════════════════════
+   RENDER TASK LIST after fetch / after submit
+══════════════════════════════════════════════════════ */
+function renderList() {
+  var today = todayISO();
+  document.getElementById('hdr-date').textContent  = fmtDate(today);
+  document.getElementById('list-greet').textContent = 'Hi ' + S.person + ' 👋';
+  var n = S.tasks.length;
+  document.getElementById('list-ct').textContent = n + ' task' + (n !== 1 ? 's' : '') + ' remaining';
+
+  // ── Progress bar ─────────────────────────────────────
+  var progSection = document.getElementById('prog-section');
+  if (S.total > 0) {
+    progSection.style.display = 'block';
+    var pct = Math.round((S.done / S.total) * 100);
+    var fill = document.getElementById('prog-fill');
+    fill.style.width = pct + '%';
+    fill.className = 'prog-fill' + (pct === 100 ? ' complete' : '');
+    document.getElementById('prog-count').textContent = S.done + ' / ' + S.total + ' updated';
+  } else {
+    progSection.style.display = 'none';
+  }
+
+  var listEl = document.getElementById('task-list');
+  var lblEl  = document.getElementById('list-lbl');
+
+  if (n === 0) {
+    lblEl.textContent = '';
+    listEl.innerHTML =
+      '<div class="empty">' +
+      '<div class="empty-ic">🎉</div>' +
+      '<div class="empty-ttl">All caught up!</div>' +
+      '<div class="empty-msg">No follow-ups due today.<br>Check back tomorrow.</div>' +
+      '</div>';
+  } else {
+    lblEl.textContent = 'Tap a client to update';
+    var html = '';
+    S.tasks.forEach(function(t, i) {
+      html +=
+        '<div class="tc" onclick="showForm(' + i + ')">' +
+        '<div class="tc-body">' +
+        '<div class="tc-top">' + badge(t) + '</div>' +
+        '<div class="tc-client">' + esc(t.clientName)  + '</div>' +
+        '<div class="tc-proj">'   + esc(t.projectName) + '</div>' +
+        '</div>' +
+        '<div class="tc-arrow">→</div>' +
+        '</div>';
+    });
+    listEl.innerHTML = html;
+  }
+  showScreen('screen-list');
+}
+
+/* ══════════════════════════════════════════════════════
+   BOOT — runs once on page load
+   1. Read ?person= from URL
+   2. Fetch tasks from GAS JSON endpoint (25s timeout)
+   3. Show "still loading" nudge after 5s
+   4. Render list or show error
+══════════════════════════════════════════════════════ */
+(function boot() {
+  var params = new URLSearchParams(window.location.search);
+  var person = (params.get('person') || '').trim();
+
+  if (!person) {
+    document.getElementById('err-txt').textContent =
+      'No person found in the link. Please open this page from your WhatsApp message — the button includes your name automatically.';
+    showScreen('screen-error');
+    return;
+  }
+
+  S.person = person;
+
+  // Show "taking longer" nudge after 5s
+  var slowTimer = setTimeout(function() {
+    var el = document.getElementById('loader-slow');
+    if (el) el.style.display = 'block';
+  }, 5000);
+
+  // Hard abort after 25s
+  var controller = new AbortController();
+  var abortTimer = setTimeout(function() { controller.abort(); }, 25000);
+
+  fetch(GAS_URL + '?action=getTasks&person=' + encodeURIComponent(person),
+        { method:'GET', mode:'cors', redirect:'follow', signal: controller.signal })
+    .then(function(r) {
+      clearTimeout(slowTimer);
+      clearTimeout(abortTimer);
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then(function(d) {
+      if (!d.success) throw new Error(d.message || 'Failed to load tasks.');
+      S.tasks = d.tasks || [];
+      S.total = S.tasks.length;   // set once; stays fixed for progress %
+      S.done  = 0;
+      renderList();
+    })
+    .catch(function(err) {
+      clearTimeout(slowTimer);
+      clearTimeout(abortTimer);
+      var msg = err.name === 'AbortError'
+        ? 'Request timed out after 25 seconds. Check your internet and reopen the link.'
+        : 'Could not load tasks: ' + err.message + '. Close and reopen the link from WhatsApp.';
+      document.getElementById('err-txt').textContent = msg;
+      showScreen('screen-error');
+      console.error('Boot error:', err);
+    });
+})();
+</script>
+</body>
+</html>
