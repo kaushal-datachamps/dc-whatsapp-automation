@@ -283,12 +283,31 @@
       border-radius: var(--r-lg); padding: 16px; margin-bottom: 14px;
       box-shadow: var(--shadow-sm);
     }
-    .ctx-badge   { margin-bottom: 10px; }
-    .ctx-client  { font-size: 19px; font-weight: 800; color: var(--teal-900); letter-spacing: -.4px; margin-bottom: 3px; }
-    .ctx-proj    { font-size: 13px; color: var(--dim); font-weight: 500; margin-bottom: 14px; }
-    .ctx-div     { height: 1px; background: var(--sand); margin-bottom: 12px; }
-    .ctx-lbl     { font-size: 10px; font-weight: 700; letter-spacing: .7px; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
-    .ctx-val     { font-size: 14px; color: var(--ink); line-height: 1.5; }
+    .ctx-badge  { margin-bottom: 8px; }
+    .ctx-client { font-size: 19px; font-weight: 800; color: var(--teal-900); letter-spacing: -.4px; margin-bottom: 2px; }
+    .ctx-proj   { font-size: 13px; color: var(--dim); font-weight: 500; margin-bottom: 12px; }
+    .ctx-div    { height: 1px; background: var(--sand); margin-bottom: 12px; }
+    /* Info boxes — teal for action, amber for update */
+    .ctx-info {
+      border-radius: var(--r-sm); padding: 9px 11px;
+      border-left: 3px solid transparent; margin-bottom: 8px;
+    }
+    .ctx-info:last-child { margin-bottom: 0; }
+    .ctx-info-lbl {
+      font-size: 10px; font-weight: 700; letter-spacing: .6px;
+      text-transform: uppercase; margin-bottom: 4px;
+    }
+    .ctx-info-val { font-size: 13px; line-height: 1.5; }
+    .ctx-action {
+      background: #eaf6f7; border-left-color: var(--teal-500);
+    }
+    .ctx-action .ctx-info-lbl { color: var(--teal-700); }
+    .ctx-action .ctx-info-val { color: var(--teal-900); }
+    .ctx-update-box {
+      background: #fffbeb; border-left-color: #d97706;
+    }
+    .ctx-update-box .ctx-info-lbl { color: #92400e; }
+    .ctx-update-box .ctx-info-val { color: #78350f; }
 
     /* ── FORM CARD ─────────────────────────────────────────── */
     .fc {
@@ -677,19 +696,22 @@ function showForm(idx) {
   document.getElementById('form-ctx-lbl').textContent = S.person + "'s tasks";
   document.getElementById('form-hdr-date').textContent = document.getElementById('hdr-date').textContent;
 
-  // Context card — shows client, action point, and last logged update
+  // Context card — badge, client, project + teal action box + amber update box
   var lastUpd = extractLatestUpdate(t.latestUpdate);
   document.getElementById('ctx-card').innerHTML =
     '<div class="ctx-badge">'  + badge(t) + '</div>' +
-    '<div class="ctx-client">' + esc(t.clientName)  + '</div>' +
+    '<div class="ctx-client">' + esc(t.clientName) + '</div>' +
     (t.projectName ? '<div class="ctx-proj">' + esc(t.projectName) + '</div>' : '') +
     '<div class="ctx-div"></div>' +
-    '<div class="ctx-lbl">Current Action Point</div>' +
-    '<div class="ctx-val">' + esc(t.actionPoint) + '</div>' +
+    '<div class="ctx-info ctx-action">' +
+      '<div class="ctx-info-lbl">Next Action</div>' +
+      '<div class="ctx-info-val">' + esc(t.actionPoint) + '</div>' +
+    '</div>' +
     (lastUpd
-      ? '<div class="ctx-div" style="margin-top:12px"></div>' +
-        '<div class="ctx-lbl">Last Logged Update</div>' +
-        '<div class="ctx-update">' + esc(lastUpd) + '</div>'
+      ? '<div class="ctx-info ctx-update-box">' +
+          '<div class="ctx-info-lbl">Last Update</div>' +
+          '<div class="ctx-info-val">' + esc(lastUpd) + '</div>' +
+        '</div>'
       : '');
 
   // Reset form fields
