@@ -1,912 +1,1392 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <meta name="theme-color" content="#0b2d2f" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>Datachamps — Pipeline</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <!-- Non-blocking font load: page renders instantly, fonts swap in when ready -->
-  <link rel="preload"
-        href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=DM+Mono:wght@400;500&display=swap"
-        as="style"
-        onload="this.onload=null;this.rel='stylesheet'" />
-  <noscript>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  </noscript>
-  <!-- DNS prefetch for GAS endpoint -->
-  <link rel="dns-prefetch" href="https://script.google.com" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="theme-color" content="#0f1923"/>
+  <title>Datachamps Pipeline</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'"/>
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap"/></noscript>
 
   <style>
-    /* ═══════════════════════════════════════════════════════
-       DESIGN SYSTEM — Datachamps Pipeline Follow-Up v1.0
-       Aesthetic: Refined data-tool. Deep teal + warm cream.
-    ═══════════════════════════════════════════════════════ */
+    /* ── TOKENS ── */
     :root {
-      --teal-950: #071e20;
-      --teal-900: #0b2d2f;
-      --teal-700: #0f4649;
-      --teal-500: #01696f;
-      --teal-400: #1e8a91;
-      --teal-200: #8ecdd1;
-      --teal-100: #c6e8ea;
-      --teal-50:  #eaf6f7;
-
-      --cream:  #f6f3ed;
-      --paper:  #ffffff;
-      --sand:   #ede9e1;
-      --stone:  #c8c3b8;
-      --ink:    #18160f;
-      --dim:    #5a5750;
-      --muted:  #8a8680;
-
-      --hot:      #dc2626; --hot-bg:   #fff1f1; --hot-border:   #fecaca;
-      --warm:     #c2610a; --warm-bg:  #fff8ed; --warm-border:  #fed7aa;
-      --cold:     #1d4ed8; --cold-bg:  #eff4ff; --cold-border:  #bfdbfe;
-      --book:     #047857; --book-bg:  #edfdf5; --book-border:  #a7f3d0;
-      --out:      #6b7280; --out-bg:   #f8f9fa; --out-border:   #e5e7eb;
-      --concluded:#01696f; --conc-bg:  #eaf6f7; --conc-border:  #8ecdd1;
-
-      --r-sm: 6px; --r-md: 10px; --r-lg: 14px; --r-xl: 18px;
-
-      --shadow-sm:   0 1px 3px rgba(7,30,32,.08), 0 2px 8px rgba(7,30,32,.05);
-      --shadow-md:   0 2px 8px rgba(7,30,32,.09), 0 6px 20px rgba(7,30,32,.07);
-      --shadow-teal: 0 4px 18px rgba(1,105,111,.28);
+      --bg:          #0f1923;
+      --surface:     #17232f;
+      --surface2:    #1e2f3d;
+      --border:      rgba(255,255,255,0.07);
+      --border2:     rgba(255,255,255,0.12);
+      --text:        #e8edf2;
+      --text-2:      #8fa3b3;
+      --text-3:      #4d6475;
+      --accent:      #3ecfcf;
+      --accent-glow: rgba(62,207,207,0.18);
+      --hot:         #ff5c5c;
+      --hot-bg:      rgba(255,92,92,0.10);
+      --warm:        #ffb347;
+      --warm-bg:     rgba(255,179,71,0.10);
+      --cold:        #6eb3f7;
+      --cold-bg:     rgba(110,179,247,0.10);
+      --order:       #a78bfa;
+      --order-bg:    rgba(167,139,250,0.10);
+      --danger:      #ff5c5c;
+      --success:     #3ecfcf;
+      --radius:      14px;
+      --radius-sm:   8px;
+      --font:        'DM Sans', sans-serif;
+      --mono:        'DM Mono', monospace;
+      --safe-top:    env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
 
+    /* ── RESET ── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { height: 100%; -webkit-text-size-adjust: 100%; }
+    html { height: 100%; background: var(--bg); }
     body {
-      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: var(--cream);
-      color: var(--ink);
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
       min-height: 100%;
-      -webkit-font-smoothing: antialiased;
+      min-height: -webkit-fill-available;
       overscroll-behavior: none;
+      -webkit-font-smoothing: antialiased;
     }
+    button { font-family: var(--font); cursor: pointer; border: none; background: none; }
+    input, textarea, select { font-family: var(--font); }
+    a { color: inherit; text-decoration: none; }
 
-    /* ── SCREEN SYSTEM ─────────────────────────────────────
-       Pure CSS toggle — NO history API, NO pushState.
-       This fixes: back button, page-won't-reopen, all of it.
-    ──────────────────────────────────────────────────────── */
-    .screen { display: none; }
-    .screen.active { display: block; }
-    #screen-loading.active { display: flex; }
-    #screen-error.active   { display: flex; }
-
-    /* ── LOADING ───────────────────────────────────────────── */
-    #screen-loading {
-      position: fixed; inset: 0; z-index: 999;
-      background: var(--teal-900);
+    /* ── SCREEN SYSTEM ── */
+    .screen {
+      display: none;
+      min-height: 100dvh;
+      min-height: 100vh;
+      padding-top: var(--safe-top);
+      padding-bottom: calc(var(--safe-bottom) + 16px);
       flex-direction: column;
-      align-items: center; justify-content: center; gap: 20px;
     }
-    .loader-brand { display: flex; align-items: center; }
-    /* Company logo on loading screen */
-    .loader-logo-wrap {
-      background: #fff; border-radius: 14px;
-      padding: 12px 24px; max-width: 240px;
-      display: flex; align-items: center; justify-content: center;
-      overflow: hidden;
+    .screen.active { display: flex; }
+
+    /* ── LOADING SCREEN ── */
+    #screen-loading {
+      align-items: center;
+      justify-content: center;
+      background: var(--bg);
     }
-    .loader-logo {
-      height: 34px; width: auto;
-      max-width: 180px; display: block;
-      object-fit: contain;
+    .loading-inner { text-align: center; }
+    .logo-wrap { margin-bottom: 32px; }
+    .logo-img {
+      width: 80px; height: 80px;
+      border-radius: 20px;
+      object-fit: cover;
+      box-shadow: 0 0 40px var(--accent-glow);
     }
-    .loader-ring {
-      width: 28px; height: 28px;
-      border: 2.5px solid rgba(255,255,255,.15);
-      border-top-color: var(--teal-200);
+    .loading-ring {
+      width: 44px; height: 44px;
+      border: 3px solid var(--border2);
+      border-top-color: var(--accent);
       border-radius: 50%;
-      animation: spin .75s linear infinite;
+      animation: spin 0.9s linear infinite;
+      margin: 0 auto 16px;
     }
-    .loader-txt { font-size: 12px; color: var(--teal-100); font-weight: 500; letter-spacing: .3px; }
-    .loader-slow {
-      font-size: 11px; color: var(--teal-200); opacity: .65;
-      letter-spacing: .2px; display: none; text-align: center;
-      max-width: 240px; line-height: 1.5;
-    }
+    .loading-text { font-size: 14px; color: var(--text-2); letter-spacing: 0.02em; }
+    .slow-msg { font-size: 12px; color: var(--text-3); margin-top: 8px; display: none; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ── ERROR ─────────────────────────────────────────────── */
-    #screen-error {
-      min-height: 100vh;
-      align-items: center; justify-content: center; padding: 24px;
+    /* ── HEADER ── */
+    .app-header {
+      padding: 16px 20px 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+      position: sticky;
+      top: var(--safe-top);
+      z-index: 10;
     }
-    .err-card {
-      background: var(--paper); border-radius: var(--r-xl);
-      padding: 36px 24px; text-align: center;
-      max-width: 360px; width: 100%;
-      box-shadow: var(--shadow-md);
+    .header-logo {
+      width: 36px; height: 36px;
+      border-radius: 9px;
+      object-fit: cover;
+      flex-shrink: 0;
     }
-    .err-icon { font-size: 40px; margin-bottom: 14px; }
-    .err-title { font-size: 18px; font-weight: 700; color: var(--ink); margin-bottom: 8px; }
-    .err-body  { font-size: 14px; color: var(--dim); line-height: 1.6; }
+    .header-text { flex: 1; min-width: 0; }
+    .header-title { font-size: 15px; font-weight: 600; color: var(--text); line-height: 1.2; }
+    .header-sub   { font-size: 12px; color: var(--text-2); margin-top: 1px; }
+    .header-badge {
+      background: var(--accent-glow);
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 9px;
+      border-radius: 20px;
+      border: 1px solid rgba(62,207,207,0.25);
+      white-space: nowrap;
+    }
 
-    /* ── HEADER ────────────────────────────────────────────── */
-    .hdr {
-      background: var(--teal-900); height: 54px; padding: 0 16px;
-      display: flex; align-items: center; justify-content: space-between;
-      position: sticky; top: 0; z-index: 50;
-      box-shadow: 0 2px 12px rgba(0,0,0,.28);
+    /* ── PROGRESS BAR ── */
+    .progress-wrap { padding: 12px 20px 0; }
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-2);
+      margin-bottom: 6px;
+    }
+    .progress-track {
+      height: 4px;
+      background: var(--surface2);
+      border-radius: 99px;
       overflow: hidden;
     }
-    .hdr-brand { display: flex; align-items: center; flex-shrink: 0; }
-    /* Company logo — white pill on dark header */
-    .hdr-logo-wrap {
-      background: #fff; border-radius: 8px;
-      padding: 5px 10px; height: 38px;
-      display: flex; align-items: center; justify-content: center;
-      overflow: hidden; flex-shrink: 0;
-    }
-    .hdr-logo {
-      height: 26px; width: auto;
-      max-width: 130px; display: block;
-      object-fit: contain; flex-shrink: 0;
-    }
-    .hdr-date {
-      font-family: 'DM Mono', monospace;
-      font-size: 11px; color: var(--teal-200); font-weight: 500; letter-spacing: .3px;
-    }
-
-    /* ── SUB BAR ───────────────────────────────────────────── */
-    .sub {
-      background: var(--teal-700); padding: 10px 16px;
-      min-height: 42px; display: flex; align-items: center;
-    }
-    .sub-in {
-      max-width: 560px; margin: 0 auto; width: 100%;
-      display: flex; align-items: center;
-    }
-
-    /* ── PROGRESS BAR (list screen only) ──────────────────── */
-    .prog-section {
-      background: var(--teal-700);
-      padding: 0 16px 12px;
-    }
-    .prog-inner {
-      max-width: 560px; margin: 0 auto; width: 100%;
-    }
-    .prog-header {
-      display: flex; justify-content: space-between;
-      align-items: center; margin-bottom: 6px;
-    }
-    .prog-lbl {
-      font-size: 10px; font-weight: 700; letter-spacing: .6px;
-      text-transform: uppercase; color: var(--teal-100); opacity: .8;
-    }
-    .prog-count {
-      font-size: 11px; font-weight: 700;
-      color: var(--teal-200); font-family: 'DM Mono', monospace;
-    }
-    .prog-track {
-      height: 5px; background: rgba(255,255,255,.15);
-      border-radius: 99px; overflow: hidden;
-    }
-    .prog-fill {
-      height: 100%; width: 0%;
-      background: linear-gradient(90deg, var(--teal-200), #b8e8eb);
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), #5de0e0);
       border-radius: 99px;
-      transition: width .55s cubic-bezier(.4,0,.2,1);
-    }
-    .prog-fill.complete {
-      background: linear-gradient(90deg, #6ee7b7, #34d399);
-    }
-    .sub-greet { font-size: 14px; font-weight: 700; color: #fff; }
-    .sub-ct { font-size: 12px; color: var(--teal-100); font-weight: 500; margin-left: 8px; }
-    .back-btn {
-      font-size: 13px; font-weight: 600; color: #fff;
-      background: transparent; border: none; cursor: pointer; font-family: inherit;
-      display: inline-flex; align-items: center; gap: 5px;
-      padding: 8px 0; min-height: 44px;
-      -webkit-tap-highlight-color: transparent; touch-action: manipulation; opacity: .9;
-    }
-    .back-btn:hover { opacity: 1; }
-    .back-btn:active { opacity: .7; }
-    .sub-sep  { color: var(--teal-200); opacity: .5; margin: 0 8px; }
-    .sub-ctx  { font-size: 13px; color: var(--teal-100); font-weight: 500; }
-
-    /* ── CONTAINER ─────────────────────────────────────────── */
-    .ctr { max-width: 560px; margin: 0 auto; padding: 18px 14px 72px; }
-
-    /* ── SECTION LABEL ─────────────────────────────────────── */
-    .sec-lbl {
-      font-size: 10px; font-weight: 700; letter-spacing: 1px;
-      text-transform: uppercase; color: var(--muted); margin-bottom: 12px;
+      transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
     }
 
-    /* ── TASK CARDS ────────────────────────────────────────── */
-    .tc {
-      background: var(--paper);
-      border: 1.5px solid var(--sand);
-      border-radius: var(--r-lg);
-      padding: 16px; margin-bottom: 10px;
-      display: flex; align-items: center; gap: 12px;
-      cursor: pointer; box-shadow: var(--shadow-sm);
-      transition: border-color .15s, box-shadow .15s, transform .1s;
-      -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation; user-select: none;
-      animation: slideUp .3s ease both;
+    /* ── SEARCH ── */
+    .search-wrap { padding: 12px 20px 0; }
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 9px 12px;
+      transition: border-color 0.2s;
     }
-    .tc:hover { border-color: var(--teal-500); box-shadow: var(--shadow-md); }
-    .tc:active { transform: scale(.985); }
-    .tc:nth-child(2) { animation-delay: .05s; }
-    .tc:nth-child(3) { animation-delay: .10s; }
-    .tc:nth-child(4) { animation-delay: .15s; }
-    .tc:nth-child(5) { animation-delay: .20s; }
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateY(10px); }
+    .search-box:focus-within { border-color: var(--accent); }
+    .search-icon { color: var(--text-3); font-size: 14px; flex-shrink: 0; }
+    .search-input {
+      flex: 1;
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-size: 14px;
+    }
+    .search-input::placeholder { color: var(--text-3); }
+
+    /* ── TASK LIST ── */
+    .task-list { padding: 12px 20px; flex: 1; }
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-3);
+    }
+    .empty-state .empty-icon { font-size: 40px; margin-bottom: 12px; }
+    .empty-state p { font-size: 14px; line-height: 1.6; }
+
+    /* ── TASK CARD ── */
+    .task-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: transform 0.15s, border-color 0.2s, box-shadow 0.2s;
+      animation: cardIn 0.3s ease both;
+      position: relative;
+      overflow: hidden;
+    }
+    .task-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      border-radius: 3px 0 0 3px;
+    }
+    .task-card.cat-hot::before    { background: var(--hot); }
+    .task-card.cat-warm::before   { background: var(--warm); }
+    .task-card.cat-cold::before   { background: var(--cold); }
+    .task-card.cat-order::before  { background: var(--order); }
+    .task-card:active { transform: scale(0.985); }
+    .task-card:hover  { border-color: var(--border2); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(8px); }
       to   { opacity: 1; transform: translateY(0); }
     }
-    .tc-body { flex: 1; min-width: 0; }
-    .tc-top  { margin-bottom: 7px; }
-    .tc-client {
-      font-size: 16px; font-weight: 700; color: var(--teal-900);
-      letter-spacing: -.3px; margin-bottom: 3px;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    .tc-proj {
-      font-size: 13px; color: var(--dim); font-weight: 500;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    .tc-arrow { font-size: 18px; color: var(--teal-400); flex-shrink: 0; }
 
-    /* ── BADGES ────────────────────────────────────────────── */
-    .badge {
-      display: inline-flex; align-items: center;
-      padding: 3px 8px; border-radius: 20px;
-      font-size: 10px; font-weight: 700; letter-spacing: .5px;
-      text-transform: uppercase; border: 1px solid transparent;
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
     }
-    .badge::before { content: '●'; margin-right: 4px; font-size: 7px; }
-    .badge-hot       { background: var(--hot-bg);  color: var(--hot);  border-color: var(--hot-border); }
-    .badge-warm      { background: var(--warm-bg); color: var(--warm); border-color: var(--warm-border); }
-    .badge-cold      { background: var(--cold-bg); color: var(--cold); border-color: var(--cold-border); }
-    .badge-orderbook { background: var(--book-bg); color: var(--book); border-color: var(--book-border); }
-    .badge-out       { background: var(--out-bg);  color: var(--out);  border-color: var(--out-border); }
-    .badge-concluded { background: var(--conc-bg); color: var(--concluded); border-color: var(--conc-border); }
-    .badge-default   { background: var(--out-bg);  color: var(--out);  border-color: var(--out-border); }
+    .card-cat {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+    .cat-hot  .card-cat  { color: var(--hot);   background: var(--hot-bg); }
+    .cat-warm .card-cat  { color: var(--warm);  background: var(--warm-bg); }
+    .cat-cold .card-cat  { color: var(--cold);  background: var(--cold-bg); }
+    .cat-order .card-cat { color: var(--order); background: var(--order-bg); }
 
-    /* ── EMPTY STATE ───────────────────────────────────────── */
-    .empty { text-align: center; padding: 64px 20px; }
-    .empty-ic  { font-size: 44px; margin-bottom: 14px; }
-    .empty-ttl { font-size: 20px; font-weight: 700; color: var(--teal-900); margin-bottom: 8px; }
-    .empty-msg { font-size: 14px; color: var(--dim); line-height: 1.6; }
+    .overdue-badge {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--danger);
+      background: rgba(255,92,92,0.12);
+      padding: 2px 7px;
+      border-radius: 4px;
+      border: 1px solid rgba(255,92,92,0.2);
+      flex-shrink: 0;
+    }
+    .card-client {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.3;
+      flex: 1;
+      min-width: 0;
+    }
+    .card-project {
+      font-size: 12px;
+      color: var(--text-2);
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .card-action {
+      font-size: 12px;
+      color: var(--text-2);
+      margin-top: 8px;
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .card-arrow {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-3);
+      font-size: 16px;
+    }
 
-    /* ── CONTEXT CARD (form screen) ────────────────────────── */
-    .ctx {
-      background: var(--paper); border: 1px solid var(--sand);
-      border-radius: var(--r-lg); padding: 16px; margin-bottom: 14px;
-      box-shadow: var(--shadow-sm);
+    /* ── MANAGER TABS ── */
+    .manager-tabs-wrap {
+      padding: 0 20px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      border-bottom: 1px solid var(--border);
     }
-    .ctx-badge  { margin-bottom: 8px; }
-    .ctx-client { font-size: 19px; font-weight: 800; color: var(--teal-900); letter-spacing: -.4px; margin-bottom: 2px; }
-    .ctx-proj   { font-size: 13px; color: var(--dim); font-weight: 500; margin-bottom: 12px; }
-    .ctx-div    { height: 1px; background: var(--sand); margin-bottom: 12px; }
-    /* Info boxes — teal for action, amber for update */
-    .ctx-info {
-      border-radius: var(--r-sm); padding: 9px 11px;
-      border-left: 3px solid transparent; margin-bottom: 8px;
+    .manager-tabs-wrap::-webkit-scrollbar { display: none; }
+    .manager-tabs {
+      display: flex;
+      gap: 0;
+      width: max-content;
+      padding-bottom: 0;
     }
-    .ctx-info:last-child { margin-bottom: 0; }
-    .ctx-info-lbl {
-      font-size: 10px; font-weight: 700; letter-spacing: .6px;
-      text-transform: uppercase; margin-bottom: 4px;
+    .tab-btn {
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-2);
+      border-bottom: 2px solid transparent;
+      transition: color 0.2s, border-color 0.2s;
+      white-space: nowrap;
     }
-    .ctx-info-val { font-size: 13px; line-height: 1.5; }
-    .ctx-action {
-      background: #eaf6f7; border-left-color: var(--teal-500);
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
     }
-    .ctx-action .ctx-info-lbl { color: var(--teal-700); }
-    .ctx-action .ctx-info-val { color: var(--teal-900); }
-    .ctx-update-box {
-      background: #fffbeb; border-left-color: #d97706;
+    .tab-count {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 1px 5px;
+      border-radius: 10px;
+      margin-left: 4px;
+      background: var(--surface2);
+      color: var(--text-3);
+      vertical-align: middle;
     }
-    .ctx-update-box .ctx-info-lbl { color: #92400e; }
-    .ctx-update-box .ctx-info-val { color: #78350f; }
+    .tab-btn.active .tab-count {
+      background: var(--accent-glow);
+      color: var(--accent);
+    }
 
-    /* ── FORM CARD ─────────────────────────────────────────── */
-    .fc {
-      background: var(--paper);
-      border: 1.5px solid var(--teal-500);
-      border-radius: var(--r-lg); padding: 18px;
-      box-shadow: var(--shadow-teal);
+    /* ── FORM SCREEN ── */
+    #screen-form { background: var(--bg); }
+    .form-header {
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+      position: sticky;
+      top: var(--safe-top);
+      z-index: 10;
     }
-    .fc-ttl {
-      font-size: 13px; font-weight: 700; color: var(--teal-900);
-      margin-bottom: 18px; padding-bottom: 14px;
-      border-bottom: 1px solid var(--sand);
-    }
-    .fg   { margin-bottom: 18px; }
-    .fl   { display: block; font-size: 13px; font-weight: 600; color: var(--teal-900); margin-bottom: 4px; }
-    .fh   { font-size: 11px; color: var(--muted); margin-bottom: 7px; line-height: 1.4; }
-    .req  { color: #dc2626; }
-    .ft, .fi, select.fi {
-      width: 100%; border: 1.5px solid var(--stone);
-      border-radius: var(--r-sm); padding: 11px 12px;
-      font-size: 14px; font-family: inherit;
-      color: var(--ink); background: var(--cream);
-      outline: none;
-      transition: border-color .15s, background .15s, box-shadow .15s;
-      -webkit-appearance: none;
-    }
-    .ft { min-height: 88px; resize: vertical; }
-    select.fi {
-      cursor: pointer;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238a8680' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 12px center;
-      padding-right: 38px;
-    }
-    .ft:focus, .fi:focus, select.fi:focus {
-      border-color: var(--teal-500); background: var(--paper);
-      box-shadow: 0 0 0 3px rgba(1,105,111,.10);
-    }
-    .fbtns { display: flex; gap: 10px; margin-top: 22px; }
-    .btn-cancel {
-      flex: 1; background: transparent;
-      border: 1.5px solid var(--stone); border-radius: var(--r-sm);
-      padding: 12px; font-size: 14px; font-family: inherit;
-      font-weight: 600; color: var(--dim); cursor: pointer;
-      transition: border-color .15s, color .15s;
-      -webkit-tap-highlight-color: transparent; touch-action: manipulation;
-    }
-    .btn-cancel:hover  { border-color: var(--ink); color: var(--ink); }
-    .btn-cancel:active { transform: scale(.98); }
-    .btn-save {
-      flex: 2; background: var(--teal-500);
-      border: none; border-radius: var(--r-sm);
-      padding: 12px; font-size: 15px; font-family: inherit;
-      font-weight: 700; color: #fff; cursor: pointer;
-      transition: background .15s;
-      box-shadow: var(--shadow-teal);
-      -webkit-tap-highlight-color: transparent; touch-action: manipulation;
-    }
-    .btn-save:hover    { background: var(--teal-700); }
-    .btn-save:active   { background: var(--teal-950); transform: scale(.98); }
-    .btn-save:disabled { background: var(--stone); color: var(--muted); cursor: not-allowed; box-shadow: none; }
-
-    /* ── STATUS MESSAGES ───────────────────────────────────── */
-    .st-msg {
-      margin-top: 14px; padding: 12px; border-radius: var(--r-sm);
-      font-size: 13px; font-weight: 600; text-align: center;
-      display: none; line-height: 1.4;
-    }
-    .st-ok  { display: block; background: #edfdf5; color: #047857; border: 1px solid #a7f3d0; }
-    .st-err { display: block; background: #fff1f1; color: #dc2626; border: 1px solid #fecaca; }
-
-    /* ── SUCCESS SCREEN ────────────────────────────────────── */
-    .sw { text-align: center; padding: 56px 24px; }
-    .sw-ring {
-      width: 72px; height: 72px; background: var(--teal-500);
-      border-radius: 50%;
+    .back-btn {
+      width: 34px; height: 34px;
+      border-radius: 9px;
+      background: var(--surface);
+      border: 1px solid var(--border);
       display: flex; align-items: center; justify-content: center;
-      margin: 0 auto 22px; box-shadow: var(--shadow-teal);
-      animation: popIn .4s cubic-bezier(.34,1.56,.64,1) both;
+      color: var(--text-2);
+      font-size: 16px;
+      flex-shrink: 0;
+      transition: background 0.15s;
+    }
+    .back-btn:active { background: var(--surface2); }
+    .form-header-text { flex: 1; min-width: 0; }
+    .form-header-client { font-size: 15px; font-weight: 600; }
+    .form-header-project { font-size: 12px; color: var(--text-2); margin-top: 1px; }
+
+    .form-body { padding: 16px 20px; flex: 1; overflow-y: auto; }
+
+    /* context card */
+    .ctx-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    .ctx-row {
+      padding: 12px 14px;
+      border-left: 3px solid transparent;
+      position: relative;
+    }
+    .ctx-row + .ctx-row { border-top: 1px solid var(--border); }
+    .ctx-row.teal  { border-left-color: var(--accent); }
+    .ctx-row.amber { border-left-color: var(--warm); }
+    .ctx-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: 4px;
+    }
+    .ctx-value {
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.5;
+    }
+    .ctx-empty { color: var(--text-3); font-style: italic; }
+
+    /* history toggle */
+    .history-toggle {
+      font-size: 11px;
+      color: var(--accent);
+      margin-top: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+    .history-toggle svg { transition: transform 0.2s; }
+    .history-toggle.open svg { transform: rotate(180deg); }
+    .history-list {
+      display: none;
+      margin-top: 8px;
+      border-top: 1px solid var(--border);
+      padding-top: 8px;
+    }
+    .history-list.open { display: block; }
+    .history-entry {
+      font-size: 12px;
+      color: var(--text-2);
+      padding: 4px 0;
+      border-bottom: 1px dashed var(--border);
+      line-height: 1.4;
+    }
+    .history-entry:last-child { border-bottom: none; }
+    .history-num {
+      font-size: 10px;
+      color: var(--text-3);
+      font-family: var(--mono);
+      margin-right: 6px;
+    }
+
+    /* form fields */
+    .field { margin-bottom: 16px; }
+    .field-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-2);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 7px;
+      display: block;
+    }
+
+    /* quick actions */
+    .quick-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .quick-btn {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-2);
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 20px;
+      padding: 5px 11px;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .quick-btn:active { background: var(--surface2); color: var(--accent); border-color: var(--accent); }
+    .quick-btn.selected { background: var(--accent-glow); color: var(--accent); border-color: var(--accent); }
+
+    textarea.field-input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-size: 14px;
+      padding: 11px 13px;
+      resize: none;
+      min-height: 90px;
+      outline: none;
+      transition: border-color 0.2s;
+      line-height: 1.55;
+    }
+    textarea.field-input:focus { border-color: var(--accent); }
+    textarea.field-input::placeholder { color: var(--text-3); }
+
+    select.field-input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-size: 14px;
+      padding: 11px 13px;
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238fa3b3' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 13px center;
+      padding-right: 34px;
+      transition: border-color 0.2s;
+    }
+    select.field-input:focus { border-color: var(--accent); }
+
+    /* date pills */
+    .date-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+    .date-pill {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-2);
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 20px;
+      padding: 5px 11px;
+      transition: all 0.15s;
+    }
+    .date-pill:active, .date-pill.active {
+      background: var(--accent-glow);
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+    input[type="date"].field-input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-size: 14px;
+      padding: 11px 13px;
+      outline: none;
+      transition: border-color 0.2s;
+      color-scheme: dark;
+    }
+    input[type="date"].field-input:focus { border-color: var(--accent); }
+
+    /* submit button */
+    .submit-btn {
+      width: 100%;
+      background: var(--accent);
+      color: #0f1923;
+      font-size: 15px;
+      font-weight: 700;
+      padding: 15px;
+      border-radius: var(--radius);
+      margin-top: 8px;
+      transition: opacity 0.2s, transform 0.15s;
+      letter-spacing: 0.01em;
+    }
+    .submit-btn:active { opacity: 0.85; transform: scale(0.98); }
+    .submit-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    /* ── CONFIRM POPUP ── */
+    .popup-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 0 0 calc(var(--safe-bottom) + 16px);
+    }
+    .popup-overlay.open { display: flex; animation: fadeIn 0.2s ease; }
+    .popup-card {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius) var(--radius) 0 0;
+      padding: 24px 20px;
+      width: 100%;
+      max-width: 480px;
+      animation: slideUp 0.25s cubic-bezier(0.4,0,0.2,1);
+    }
+    @keyframes slideUp {
+      from { transform: translateY(40px); opacity: 0; }
+      to   { transform: translateY(0); opacity: 1; }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    .popup-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: var(--text);
+    }
+    .popup-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .popup-row:last-of-type { border-bottom: none; }
+    .popup-row-label { font-size: 12px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.05em; }
+    .popup-row-value { font-size: 13px; font-weight: 500; color: var(--text); text-align: right; max-width: 200px; }
+    .popup-actions { display: flex; gap: 10px; margin-top: 20px; }
+    .popup-cancel {
+      flex: 1;
+      padding: 13px;
+      border-radius: var(--radius-sm);
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      color: var(--text-2);
+      font-size: 14px;
+      font-weight: 600;
+      transition: background 0.15s;
+    }
+    .popup-cancel:active { background: var(--border2); }
+    .popup-confirm {
+      flex: 2;
+      padding: 13px;
+      border-radius: var(--radius-sm);
+      background: var(--accent);
+      color: #0f1923;
+      font-size: 14px;
+      font-weight: 700;
+      transition: opacity 0.15s;
+    }
+    .popup-confirm:active { opacity: 0.85; }
+
+    /* ── SUCCESS SCREEN ── */
+    #screen-success {
+      align-items: center;
+      justify-content: center;
+      background: var(--bg);
+      text-align: center;
+      padding: 40px 32px;
+    }
+    .success-icon {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      background: var(--accent-glow);
+      border: 2px solid var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 30px;
+      animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
     }
     @keyframes popIn {
-      from { transform: scale(0); opacity: 0; }
+      from { transform: scale(0.5); opacity: 0; }
       to   { transform: scale(1); opacity: 1; }
     }
-    .sw-check { font-size: 30px; color: #fff; line-height: 1; font-weight: 700; }
-    .sw-ttl   { font-size: 23px; font-weight: 800; color: var(--teal-900); letter-spacing: -.5px; margin-bottom: 10px; }
-    .sw-msg   { font-size: 14px; color: var(--dim); line-height: 1.65; margin-bottom: 32px; }
-    .sw-msg strong { color: var(--teal-900); }
-    .btn-back-list {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: var(--teal-500); color: #fff;
-      border: none; border-radius: var(--r-sm);
-      padding: 13px 26px; font-size: 14px; font-weight: 700; font-family: inherit;
-      cursor: pointer; box-shadow: var(--shadow-teal);
-      -webkit-tap-highlight-color: transparent; touch-action: manipulation;
-      transition: background .15s;
+    .success-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+    .success-sub   { font-size: 14px; color: var(--text-2); line-height: 1.6; margin-bottom: 32px; }
+    .next-task-btn {
+      width: 100%;
+      max-width: 320px;
+      padding: 14px;
+      background: var(--accent);
+      color: #0f1923;
+      border-radius: var(--radius);
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      transition: opacity 0.2s;
     }
-    .btn-back-list:hover { background: var(--teal-700); }
-
-    /* ── DATE QUICK-PICK PILLS ─────────────────────────────── */
-    .date-pills { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
-    .date-pill {
-      padding: 5px 11px; border: 1.5px solid var(--stone);
-      border-radius: 20px; font-size: 12px; font-weight: 600;
-      color: var(--muted); background: transparent;
-      cursor: pointer; font-family: inherit;
-      transition: border-color .12s, color .12s, background .12s;
-      -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+    .next-task-btn:active { opacity: 0.85; }
+    .back-list-btn {
+      width: 100%;
+      max-width: 320px;
+      padding: 13px;
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      color: var(--text-2);
+      border-radius: var(--radius);
+      font-size: 14px;
+      font-weight: 600;
+      transition: background 0.15s;
     }
-    .date-pill:hover  { border-color: var(--teal-500); color: var(--teal-500); background: var(--teal-50); }
-    .date-pill:active { transform: scale(.96); }
+    .back-list-btn:active { background: var(--surface2); }
 
-    /* ── LAST UPDATE BOX (context card) ────────────────────── */
-    .ctx-update {
-      font-size: 13px; color: var(--dim); line-height: 1.5;
-      background: var(--cream); border: 1px solid var(--sand);
-      border-radius: var(--r-sm); padding: 9px 11px; margin-top: 6px;
-      font-style: italic;
+    /* ── ERROR SCREEN ── */
+    #screen-error {
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 32px;
+    }
+    .error-icon { font-size: 48px; margin-bottom: 16px; }
+    .error-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+    .error-msg   { font-size: 13px; color: var(--text-2); margin-bottom: 24px; }
+    .retry-btn {
+      padding: 12px 28px;
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      color: var(--text);
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 600;
     }
 
-    /* ── FOOTER ────────────────────────────────────────────── */
-    .footer {
-      text-align: center; font-size: 11px; color: var(--stone);
-      padding: 0 16px 28px; letter-spacing: .2px;
+    /* ── SUBMITTING OVERLAY ── */
+    .submitting-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15,25,35,0.85);
+      backdrop-filter: blur(6px);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .submitting-overlay.open { display: flex; }
+    .submitting-ring {
+      width: 48px; height: 48px;
+      border: 3px solid var(--border2);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+    }
+    .submitting-text { font-size: 14px; color: var(--text-2); }
+
+    /* ── MISC ── */
+    .divider { height: 1px; background: var(--border); margin: 8px 0; }
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      padding: 8px 20px 4px;
     }
   </style>
 </head>
 <body>
 
-<!-- ════════════════════════════════════════════════════
-     SCREEN 0: LOADING
-════════════════════════════════════════════════════ -->
+<!-- LOADING -->
 <div id="screen-loading" class="screen active">
-  <div class="loader-brand">
-    <div class="loader-logo-wrap">
-      <img src="data:image/jpeg;base64,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" class="loader-logo" alt="Datachamps" />
+  <div class="loading-inner">
+    <div class="logo-wrap">
+      <img class="logo-img" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAyADIDASIAAhEBAxEB/8QAGgAAAgMBAQAAAAAAAAAAAAAAAAUCBAYDB//EAC4QAAIBAwMCBAUFAAAAAAAAAAECAwAEEQUSITFBUWETFCIykaEjQnGBscH/xAAXAQEBAQEAAAAAAAAAAAAAAAACAwEA/8QAHREAAgICAwEAAAAAAAAAAAAAAAECEQMhMUFR/9oADAMBAAIRAxEAPwDsrW5VrgrNIkaBcsT0qxE6yIHRgyngEVxurNf6XJHqUkMFvJteJFBJK5zySfXpWloEJhsmaSRpJJn3szdyDgD5AqJu73dPzs3K+W1Twy+u1REjWWMkx52k5BFMJq1nJMIlkO7OAxB2n6HHauZ1q3v7i/uzHEzGGLECrwVHJYk+5J9sVGitIFv7ae5LpbwMXJJADkDIUZ6k8D64rRs1zTtSmvbhqmkieNhEgO4suTx2HP61n3E0kCiLcSVPOfvTl7qFotm0MUJZWA3FjgDpUd+sl9pRubWYosXLJjkH+Cit3TJWijbKvJcT3tzNNM53kSEZ9lHIUeg59810EbpJGrowZWGQR2rlNB1RbjTL/TXgFvJbxl45Ac5XkYPuK6fSnEllCwYncM5NU2QkgYLBOBUSxzDOCOakpwcKKVWIoxCuLkiTHpGAP1oZ41mjaN+DVi7/AMkv8m/WqiKEQIAqrgADFaxzXkpWrKnUMCSKxda0+XTJhIgzBIcr/j8GtVIpJI2jdQysMEHsa43JL7ZLVtNdHKO8kkrSbj8xJUfrTfRbuSZJ7YnMcL/CfZv9FRX9nNYXjwzxsrKTgkdR6GrPh6Jra3uHkgkjlkuCxLKRkYA6H5qoqZJ3udnbXCT26TKcqy1NT1rN0fU1v4GBBWWM7JF9D/AH2rSzmozV9hRRRQAVT1X/Yv7K3cV86nqrE2v91BH3iij71RpX//2Q==" alt="Datachamps" onerror="this.style.background='var(--accent)';this.src='';"/>
     </div>
-  </div>
-  <div class="loader-ring"></div>
-  <div class="loader-txt">Loading your tasks…</div>
-  <div class="loader-slow" id="loader-slow">Taking a bit longer than usual.<br>Please stay on this page…</div>
-</div>
-
-<!-- ════════════════════════════════════════════════════
-     SCREEN E: ERROR
-════════════════════════════════════════════════════ -->
-<div id="screen-error" class="screen">
-  <div class="err-card">
-    <div class="err-icon">⚠️</div>
-    <div class="err-title">Couldn't load tasks</div>
-    <div class="err-body" id="err-txt">
-      Something went wrong. Close and reopen the link from WhatsApp.
-    </div>
+    <div class="loading-ring"></div>
+    <div class="loading-text">Loading your tasks…</div>
+    <div class="slow-msg" id="slow-msg">Taking a bit longer than usual…</div>
   </div>
 </div>
 
-<!-- ════════════════════════════════════════════════════
-     SCREEN 1: TASK LIST
-════════════════════════════════════════════════════ -->
+<!-- TASK LIST -->
 <div id="screen-list" class="screen">
-  <header class="hdr">
-    <div class="hdr-brand">
-      <div class="hdr-logo-wrap">
-        <img src="data:image/jpeg;base64,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" class="hdr-logo" alt="Datachamps" />
-      </div>
+  <div class="app-header">
+    <img class="header-logo" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAyADIDASIAAhEBAxEB/8QAGgAAAgMBAQAAAAAAAAAAAAAAAAUCBAYDB//EAC4QAAIBAwMCBAUFAAAAAAAAAAECAwAEEQUSITFBUWETFCIykaEjQnGBscH/xAAXAQEBAQEAAAAAAAAAAAAAAAACAwEA/8QAHREAAgICAwEAAAAAAAAAAAAAAAECEQMhMUFR/9oADAMBAAIRAxEAPwDsrW5VrgrNIkaBcsT0qxE6yIHRgyngEVxurNf6XJHqUkMFvJteJFBJK5zySfXpWloEJhsmaSRpJJn3szdyDgD5AqJu73dPzs3K+W1Twy+u1REjWWMkx52k5BFMJq1nJMIlkO7OAxB2n6HHauZ1q3v7i/uzHEzGGLECrwVHJYk+5J9sVGitIFv7ae5LpbwMXJJADkDIUZ6k8D64rRs1zTtSmvbhqmkieNhEgO4suTx2HP61n3E0kCiLcSVPOfvTl7qFotm0MUJZWA3FjgDpUd+sl9pRubWYosXLJjkH+Cit3TJWijbKvJcT3tzNNM53kSEZ9lHIUeg59810EbpJGrowZWGQR2rlNB1RbjTL/TXgFvJbxl45Ac5XkYPuK6fSnEllCwYncM5NU2QkgYLBOBUSxzDOCOakpwcKKVWIoxCuLkiTHpGAP1oZ41mjaN+DVi7/AMkv8m/WqiKEQIAqrgADFaxzXkpWrKnUMCSKxda0+XTJhIgzBIcr/j8GtVIpJI2jdQysMEHsa43JL7ZLVtNdHKO8kkrSbj8xJUfrTfRbuSZJ7YnMcL/CfZv9FRX9nNYXjwzxsrKTgkdR6GrPh6Jra3uHkgkjlkuCxLKRkYA6H5qoqZJ3udnbXCT26TKcqy1NT1rN0fU1v4GBBWWM7JF9D/AH2rSzmozV9hRRRQAVT1X/Yv7K3cV86nqrE2v91BH3iij71RpX//2Q==" alt="DC" onerror="this.style.background='var(--accent)'"/>
+    <div class="header-text">
+      <div class="header-title" id="list-title">Pipeline Follow-Up</div>
+      <div class="header-sub" id="list-sub">Today's tasks</div>
     </div>
-    <div class="hdr-date" id="hdr-date"></div>
-  </header>
-  <div class="sub">
-    <div class="sub-in">
-      <span class="sub-greet" id="list-greet"></span>
-      <span class="sub-ct"   id="list-ct"></span>
-    </div>
+    <div class="header-badge" id="list-badge">0 tasks</div>
   </div>
-  <!-- Progress bar — hidden until tasks load -->
-  <div class="prog-section" id="prog-section" style="display:none">
-    <div class="prog-inner">
-      <div class="prog-header">
-        <span class="prog-lbl">Progress</span>
-        <span class="prog-count" id="prog-count">0 / 0</span>
-      </div>
-      <div class="prog-track">
-        <div class="prog-fill" id="prog-fill"></div>
-      </div>
+
+  <!-- Manager tabs (hidden for regular users) -->
+  <div id="manager-tabs-container" style="display:none">
+    <div class="manager-tabs-wrap">
+      <div class="manager-tabs" id="manager-tabs"></div>
     </div>
   </div>
-  <div class="ctr">
-    <div class="sec-lbl" id="list-lbl"></div>
-    <div id="task-list"></div>
+
+  <div class="progress-wrap" id="progress-section">
+    <div class="progress-label">
+      <span id="progress-text">0 of 0 updated</span>
+      <span id="progress-pct">0%</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
   </div>
-  <div class="footer">Datachamps · Democratizing Data Analytics</div>
+
+  <div class="search-wrap">
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input class="search-input" id="search-input" type="text" placeholder="Search client or project…"/>
+    </div>
+  </div>
+
+  <div class="task-list" id="task-list"></div>
 </div>
 
-<!-- ════════════════════════════════════════════════════
-     SCREEN 2: UPDATE FORM
-════════════════════════════════════════════════════ -->
+<!-- FORM -->
 <div id="screen-form" class="screen">
-  <header class="hdr">
-    <div class="hdr-brand">
-      <div class="hdr-logo-wrap">
-        <img src="data:image/jpeg;base64,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" class="hdr-logo" alt="Datachamps" />
-      </div>
-    </div>
-    <div class="hdr-date" id="form-hdr-date"></div>
-  </header>
-  <div class="sub">
-    <div class="sub-in">
-      <!-- Back button — onclick wired directly, always works -->
-      <button class="back-btn" onclick="showList()">← Back</button>
-      <span class="sub-sep">|</span>
-      <span class="sub-ctx" id="form-ctx-lbl"></span>
+  <div class="form-header">
+    <button class="back-btn" onclick="goBack()" aria-label="Back">&#8592;</button>
+    <div class="form-header-text">
+      <div class="form-header-client" id="form-client"></div>
+      <div class="form-header-project" id="form-project"></div>
     </div>
   </div>
-  <div class="ctr">
-    <div class="ctx" id="ctx-card"></div>
-    <div class="fc">
-      <div class="fc-ttl">📝 Log your update</div>
-      <div class="fg">
-        <label class="fl" for="f-update">What happened? <span class="req">*</span></label>
-        <div class="fh">Briefly describe today's follow-up</div>
-        <textarea id="f-update" class="ft" placeholder="e.g. Spoke with Viraj, he confirmed budget approval…"></textarea>
+
+  <div class="form-body">
+    <!-- Context card -->
+    <div class="ctx-card">
+      <div class="ctx-row teal">
+        <div class="ctx-label">Next Action</div>
+        <div class="ctx-value" id="ctx-action"><span class="ctx-empty">No action point set</span></div>
       </div>
-      <div class="fg">
-        <label class="fl" for="f-action">Next Action Item <span class="req">*</span></label>
-        <div class="fh">What needs to happen next?</div>
-        <textarea id="f-action" class="ft" placeholder="e.g. Follow up in 3 days with revised proposal…"></textarea>
-      </div>
-      <div class="fg">
-        <label class="fl" for="f-cat">Category <span class="req">*</span></label>
-        <div class="fh">Update if the lead status has changed</div>
-        <select id="f-cat" class="fi">
-          <option value="1. Hot">🔴 Hot</option>
-          <option value="2. Warm">🟡 Warm</option>
-          <option value="3. Cold">🔵 Cold</option>
-          <option value="4. Orderbook">🟢 Orderbook</option>
-          <option value="5. Out">⚪ Out</option>
-          <option value="6. Concluded">✅ Concluded</option>
-        </select>
-      </div>
-      <div class="fg">
-        <label class="fl" for="f-date">Next Follow-Up Date <span class="req">*</span></label>
-        <div class="fh">When should this appear again?</div>
-        <div class="date-pills">
-          <button type="button" class="date-pill" onclick="setDatePill(3)">3 days</button>
-          <button type="button" class="date-pill" onclick="setDatePill(7)">1 week</button>
-          <button type="button" class="date-pill" onclick="setDatePill(14)">2 weeks</button>
-          <button type="button" class="date-pill" onclick="setDatePill(30)">1 month</button>
+      <div class="ctx-row amber">
+        <div class="ctx-label">Last Update</div>
+        <div class="ctx-value" id="ctx-update"><span class="ctx-empty">No updates yet</span></div>
+        <div id="history-toggle-wrap" style="display:none">
+          <span class="history-toggle" id="history-toggle" onclick="toggleHistory()">
+            View history
+            <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <div class="history-list" id="history-list"></div>
         </div>
-        <input type="date" id="f-date" class="fi" />
       </div>
-      <div id="st-msg" class="st-msg"></div>
-      <div class="fbtns">
-        <!-- Cancel — onclick wired directly, always works -->
-        <button class="btn-cancel" onclick="showList()">Cancel</button>
-        <button class="btn-save"   onclick="submitUpdate()" id="btn-save">Save to Sheet</button>
+    </div>
+
+    <!-- Update textarea -->
+    <div class="field">
+      <label class="field-label">Your Update</label>
+      <div class="quick-actions" id="quick-actions">
+        <button class="quick-btn" onclick="quickFill(this, 'Called — no answer')">📞 Called, no answer</button>
+        <button class="quick-btn" onclick="quickFill(this, 'Meeting scheduled')">📅 Meeting scheduled</button>
+        <button class="quick-btn" onclick="quickFill(this, 'Proposal sent')">📄 Proposal sent</button>
+        <button class="quick-btn" onclick="quickFill(this, 'Spoke with client')">💬 Spoke with client</button>
       </div>
+      <textarea class="field-input" id="update-text" rows="3" placeholder="What happened? What's the status?"></textarea>
+    </div>
+
+    <!-- Action point -->
+    <div class="field">
+      <label class="field-label">Next Action Point</label>
+      <textarea class="field-input" id="action-point" rows="2" placeholder="What needs to happen next?"></textarea>
+    </div>
+
+    <!-- Category -->
+    <div class="field">
+      <label class="field-label">Category</label>
+      <select class="field-input" id="category-select">
+        <option value="1. Hot">🔴 Hot</option>
+        <option value="2. Warm">🟡 Warm</option>
+        <option value="3. Cold">🔵 Cold</option>
+        <option value="4. Orderbook">📦 Orderbook</option>
+        <option value="5. Out">⚪ Out</option>
+        <option value="6. Concluded">✅ Concluded</option>
+      </select>
+    </div>
+
+    <!-- Next follow-up date -->
+    <div class="field">
+      <label class="field-label">Next Follow-Up Date</label>
+      <div class="date-pills" id="date-pills">
+        <button class="date-pill" onclick="setDateOffset(3, this)">3 days</button>
+        <button class="date-pill" onclick="setDateOffset(7, this)">1 week</button>
+        <button class="date-pill" onclick="setDateOffset(14, this)">2 weeks</button>
+        <button class="date-pill" onclick="setDateOffset(30, this)">1 month</button>
+      </div>
+      <input type="date" class="field-input" id="next-date"/>
+    </div>
+
+    <button class="submit-btn" id="submit-btn" onclick="showConfirmPopup()">Save Update</button>
+  </div>
+</div>
+
+<!-- SUCCESS -->
+<div id="screen-success" class="screen">
+  <div class="success-icon">✓</div>
+  <div class="success-title" id="success-title">Update Saved!</div>
+  <div class="success-sub" id="success-sub"></div>
+  <button class="next-task-btn" id="next-task-btn" onclick="goToNextTask()" style="display:none">
+    Next Task →
+  </button>
+  <button class="back-list-btn" onclick="goToList()">Back to Task List</button>
+</div>
+
+<!-- ERROR -->
+<div id="screen-error" class="screen">
+  <div class="error-icon">⚠️</div>
+  <div class="error-title">Something went wrong</div>
+  <div class="error-msg" id="error-msg">Could not load your tasks. Please try again.</div>
+  <button class="retry-btn" onclick="location.reload()">Try Again</button>
+</div>
+
+<!-- CONFIRM POPUP -->
+<div class="popup-overlay" id="confirm-popup">
+  <div class="popup-card">
+    <div class="popup-title">Confirm Update</div>
+    <div class="popup-row">
+      <span class="popup-row-label">Client</span>
+      <span class="popup-row-value" id="popup-client"></span>
+    </div>
+    <div class="popup-row">
+      <span class="popup-row-label">Next Follow-Up</span>
+      <span class="popup-row-value" id="popup-date"></span>
+    </div>
+    <div class="popup-row">
+      <span class="popup-row-label">Category</span>
+      <span class="popup-row-value" id="popup-cat"></span>
+    </div>
+    <div class="popup-actions">
+      <button class="popup-cancel" onclick="hideConfirmPopup()">Cancel</button>
+      <button class="popup-confirm" id="popup-confirm-btn" onclick="submitUpdate()">Confirm & Save</button>
     </div>
   </div>
 </div>
 
-<!-- ════════════════════════════════════════════════════
-     SCREEN 3: SUCCESS
-════════════════════════════════════════════════════ -->
-<div id="screen-success" class="screen">
-  <header class="hdr">
-    <div class="hdr-brand">
-      <div class="hdr-logo-wrap">
-        <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAQDAwMDAgQDAwMEBAQFBgoGBgUFBgwICQcKDgwPDg4MDQ0PERYTDxAVEQ0NExoTFRcYGRkZDxIbHRsYHRYYGRj/2wBDAQQEBAYFBgsGBgsYEA0QGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBj/wAARCABQAQoDASIAAhEBAxEB/8QAHAABAAMBAQEBAQAAAAAAAAAAAAYHCAUEAwIB/8QAShAAAQIGAAQDAwYJBg8AAAAAAQIDAAQFBgcRCBIhMRNBURQiYRUyNnWxsxcjNzhCcXSBshZVYnJzdhgpMzQ1RVJWY5GUocHD0f/EABsBAQACAwEBAAAAAAAAAAAAAAABAgQFBwYD/8QAMxEAAgIBAgMEBwgDAAAAAAAAAAECEQMEIQUSMQYHQbETFCIyYXGRNDU2UXKhwfCBgoP/2gAMAwEAAhEDEQA/AN/QhCAEIQgBCIXcOTLfoUyuTbLlQmkHSm5fXKg+hWem/gNxHWs1y5e0/bzqW9/ObmApQ/cUj7YwMnE9LjlySnv9fI3ODs/xDPD0mPE6+NL9m0y1oRxLeuui3PLKcpczzOIG3GHByuI/WPT4jpHbjMx5I5IqUHaNXmw5MM3jyxakvBiEIRc+QhCEAIQhACEIQAhCEAIQhACEIQAhCEAIQhACEIQAhCEAIQhACEIQAhCEAIgWUbnfodutyEi6W5ueKk+Ik6LbY+cR6E7A38TE8UpKUlSiAB3J6RROZqpTze0gx8oSxV7ECEeKnfVxXlv4CNdxTJOOnksXvP8ALrXizd9nsOHJroena5Vvv0vwX1IFCEI8EdlPZS6pO0ars1KnvFqYZVtJ8iPNJ9QexEaZotUZrVvylVlxpuYaDgSf0T5j9x2Iy1GgMVqUrGcoFHfK66B8BzmPQ9ns0llli8Gr8jxPbbSwenhqK9pOv8NN/wAeZNIQiss95PqGIsMzV6UymStRfYmWGPAmXFIQQ4vlJ2nr0EeuSt0jmjdKyzYRmiVyvxVzNNYqTOAKM/KvNpeQWq2jmWhQBGgVb2QR5RLsW8Q9Lvm83rCuu2qjZV6sJKzR6n1D4A2S0vQ5jrZ0QNjqOYAkWeNohTRdMIQ2IoWEIiOS8j0DFWPJu87lannadKrbbWiSaDjpK1hA0kqA7nr1iS0+dZqVLlp+X5g1MNIeQFjRCVJChseujE1tYvwPTCGxCIAhCG4AQiqcUZXqWQsi5ItyfpMpJM2nV/k2XeYcUpUwnmcHMsHoD+LHQepi1olpp0yE73EIQiCRCGx6w2PWAEIbHrDygBCGx6wgBCEIAQhCAEeaoTzVPkHJp7qE9kjuo+Qj0xFLyeVuUlwfd95Z+J6AfaY1vF9a9FpJ549V0+bdGTo8Cz5o430OBUKnOVJ8rmXTy791sH3U/u/8xm7PfS/6fr+b0/eLjQsZ6z39P6f9Xp+8XGD3RZp5u08MmR23Ge7+Rh95EIw4FKMVS5o+ZDLduudo8yhl9xb8kTpTajsoHqn0/VFrtOtvsIeaWFtrSFJUOxB7GKGi2LGmFv2e0lZ34S1Ng/Dex9sdH72OzemxYYcVwRUZuXLKtrtNp/NVV+N79DG7lu1erzaifBdTNygo80L3caaTivg07S8K26kki/8AFP5NJX+2d/jMUBF/4p/JpK/2zv8AGY5LwD7S/k/NHX+2f2BfqXkyaxnbjZ/NIqv7dKfeRomM7cbP5pFV/bpT7yPbY/fRyqfusu2zQPwd0Hp/q6X+6TGfeMumNUazbVyvS0iXuC2q3L+DNIGlKZWoktk+Y5kpOvir1MaCs7pjug7B/wBHS/l/wkxnHiluCVyNclqYAtN9uoVqo1dqaqYl1c4kZdve/EI+adErI7gI6/OG5x++RP3Sx8uOZtuFy3qBiP2Oi02pp8Sp3M+tC3JJBGwhDR67I/SAPUpHu9VRVmRbdzbgOyF5OpmbaxeMrTHWjUqRXpdJZfaW4lB5DslPVQHTRAOwemjIMn3RkK6eJyk4GsS7DZdPRSBUp2qsMhyadT1AQ1zdtAJ7aPVRJ0nRr7iKwjSLH4ea1c9x5Svi5ayFMtSLVaqnMw48pxIOmQNKPJznv01vyi8FVJlZeLR2+L2m1i5OHlvJcjelTlreekZBSrX8JJl5hTroWl1a97CgHE9ANe4ItrFll37ZFiztXnMg1e/X5qlsuU6k1JLcshhxLZUEJcBOgrmSkk9gncVrxCD/ABaNM1/NlG/9UW5ed8zGPeFCavimyzc7MU+iMPS7a9lClqQhCCdd0gqBOu4BiHfKkvzC95srSjYr4jb8k3Lkv/NFWsiffWos0G32Wy1KJBISFqCtK7A62o61tW+g7eA8i3m9dt9YuyZVpeq1ez3UKTWUoDftMssEhTgGgCAEnffStHZGzHbKw7kLKNhUm9Mg57vImsyrc8Kbbz6JKXZQ4kKSgFI0SARvQGjsddbiGYOtilymfs7WfZ9RmZ6VTSfk+Vm5qZL7rjpC0qKnD84+IVDfwizpp2QrTRJ7cqOYOJmr1a5bdyDO48x/KTa5OmCmMpVNz5R0Li1EggdvPQ3ygEgmJZYJznjrN8tYV5T1Rv8As2pMKclbnMnyuyDiQSETCk9gda6k/OSQe4Hy4L6zIznDBJUBspbqVDnJmTn5Y9HGll1SwVDuNhWt+qSPIxb9TyHZ1IyRSrBn6023cdVbU9J09LS1rcQkKJUSlJCR7iuqiN8pisnTcUti0VaTsyZjSk5IujiCzXa1i3ILTkn7mXMVSvtsh6YbSlx5LbDCD0C1EqUVk9Anp3iTVCfy3w8Zos5m48lVC+rLuafTS3vlVsB+VdUQAoHZ1rm5ho6ISoEA6Md/hm/Lzn7+9I/jmI/HF987FP8AfKVi13Pl/vQql7Nk2zBLZ0uC6aLaeMJmUtyhTSFLql0qUh16XI3ptDR94bA+cB1JA2kAk1TkWnZm4dLdlclS2Zaxe1JlZtpmqUivMp5XG1qCdtqBJSdnXTRGweoBBkWQbkyTkLivewlZ96rsmk02lIqc/UZRpK5uZ5uX3WyewHOkdCOyiSegisOJvC1HsHAE5cNayXelzVxyZZYkm65VPEaUpStuFLIGiQ2FnflCC6JiT6tFpcRuRr1t65MRTOPZ2Z561UVg04OBtuocyWfCadOj7m3OuvImI/ku0eIHGViTWWWc7z1an6ZyzdRoz0mlqQWgqAWlpvZHKObsQCQOhBj75j+nXDJ9bM/wS0WtxL/mmX39WL/iTEJ1yr+9SXvbK6pdr5vzhZctkb8L0/YTNTZ9opNAozAU0wyf8mX3dpU4pWuY+gI6eUenEWVb1ujhtyJLXXOg3ZZ4n6e5UZcBJcW2wpSHOg1zhSVDYAB5QdbJiz8DfmyWH9SSv3YjP+F/oJxLfWtT+5eh1tfkOlH5w41nbPOIaVPTWVKraNHkELlTUJNtLs/WJgLUVurWeXkbSFJbAHcoVuJdZt4ZMxJxDUrEeUrm/lbRLiaWqhXA80G30vJ7tO6777aJJBUgg6JA6/BlXqZVeE6i02SebM1SnpiVnGkkcyFl1TiSR/SStJB8+vpHDz7OMV/i7whaFKUHqrIVVdWmkN9VMMAoVtXpsMuHr6fGDdyca2C2imfi4LiyTmDiiuXFdrX89YdCtdhpcy/INJXOzziwkkpJOwgFQHQ6A0TvmGpXYtq53x/l+VpFRu97IFhzrC1P1CqqbanKa6B7uuvM4CdDQ2NEn3SPe8t7YixNmbJtTq1u3lOUa+qLyS1QnrcnQh9lWiEJfT25gEkbBB6aJ6ARE6fX8s4O4i7Nx9dd/qv627rdVLMOTzIROyihoc5OySAVJ7kgjm7EdXVUh0ds1XCA6iEfA+oiH3l/nkp/UV9oiYRHrskVzFPbm2kklgnmA/2T3P7tRo+0eGWXh+SMFbVP6NN/sZ3DZqGoi5EKjPWe/p/T/q9P3i40LGes9/T+n/V6fvFxj9zv4kx/on5GB3l/cc/1R8yqotLH/wBElftC/sEVbFpY/wDokr9oX9gjt/ex9xf7x/k8R3LfiL/nL+CVRoXGMsuXxnT/ABBoulx0D4FZ1/2ilbWtqcuivtyEslSWQQqYfA6NI8z+s+QjScrLMycizKS6AhllAbQkeSQNARwrs/ppc8s76VR33trroejhpIv2rt/DZ19bPtEGy1jKl5cxq/ZlXqM5ISrz7T5elAgrBbVzAe+CNHz6ROYR6tOnaOdNWZsRwhy/gJlXs1ZNclAkIMuKmEpKR05da6DXSLOxhg/HmI2H1WlSV+3zI5ZipzrnjzTw3vRWew310kAE9TFiwiznJ7NlVFLcqrLOCaBlGrUy4kVqrW1dFLSUSdcpDnI8hG98ih+kASSOoI2euiREInOEqmXJQJ9jIOTLvu6qPs+zylRqDyT8np50qUplo7SFqCeUqO+hOtd40ZCCnJbJhwTIhUsb23XMLt4yrrTs/RhTmacoqVyOKS0lIQ4Cn5qwUJUCOxEQvHfD9TrFoVetyo3lcF127VpMSApFacC2ZZkc3ut61y7CyPd12HoIuOERzOqJ5UZvk+E+apLS6JQc4ZBpVprUd0OWmgAlCj1QlzyB/q/8zE6xngO0cU37XbjtaYnG2qrLMyvyc5ylqXS12KTrmJJ2SVE7JJi1oRLnJ7WQoJFG3lw0UWtZAmr5si8risCvzpJnZihPBLc0T1KltnXvE9To6J663sx2MXYBtvG9zTl3TdZrF1XZOI8J6uVp7xXUoPdKB2SDobPU6Gt66RbUIjnlVWOVXZAMf4ppOPbzvW46dVJ6bfuyo/KUy1MhHIwvazyt8oB1+MPfZ6CP5lDE9Jykbb+VKpPSPyDVW6sz7IEHxVo7JVzA+7+rRiwIQ5ndk0qoqTKmA6Fkm5pC7pG4Kxal2SDfgsVujO8jpb2SELH6QG1aIIPUjZHSIZUuEWj3Pbc9L35ki77prMwhDTFXqDyVKkWwsKUlhtQKUletKJ2ddBqNHQiVkkujIcEytrqw3RrrrOPqjNVeoMLsmZRNSiWQjUyUhsac2O34sfN13MSS/wCzZPIONKzZdQm5iUlapLmXcfl+XxEAkHaeYEb6eYiSwivMyaRwrMtiVsvHtGtKSmXpmXpUo3JtvP651pQnQKtADfTyisvwTUnGWKMtz1Mqk9OruNioVV9M0EAMrUw57qOUD3fe89mLqjy1OnSdYok5SKiz40nOMLln2+Yp521pKVDY6jYJ7RKk0GjIOC8Fyt5cNVm3lbN6XFY1yOSj0tNVChPcgnW0zLvKHkdAspHQK2Drp10Iu/FOArXxhW565l1Sq3LdM+koma5WHfEeKTolKB+iDob7k6A3oaie2haFvWHZslatrSHsNJkgoMS/iLc5ApRUfeWST1UT1MdyLSyN2VjBKilb84cqPc+RHr/tO8LhsW5plAbm56hvBKZoAAbcQe50BsgjehsE9Y+mPuHWhWhf6b9uS6a/e91toLbFTrjwX7OCCPxaB2OiRsk62da2YuaEV55VVk8quxCEIqWECARojYhCAI7P2lKzDqnZN0yxPUo1zJ/d6RUuRcAVm9bklqlK3DISqGZYMFDrK1EkKUrfQ/0ovyEfLhODHwnW+v6KKjkpq/Dfrt0/YpxKC4lpvVNV7UNn9Pj1Mp/4J9xf720v/p3P/sT6yuH8UGmCVrVw+1DxS4UybPh73rpzKJ9PSLuhG84vxvV8XweraySlC06pLdfIwOC8K0/BdR61oE4zpq7vZ9etngpFFplCpyZGlyiJdkdSE91H1Ue5PxMe+EI00YqK5YqkbXJklkk5zdt+LEIQixQQhCAEIQgBCEIAQhCAEIQgBCEIAQhCAEIQgBCEIAQhCAEIQgBCEIA//9k=" class="hdr-logo" alt="Datachamps" />
-      </div>
-    </div>
-  </header>
-  <div class="ctr">
-    <div class="sw">
-      <div class="sw-ring"><div class="sw-check">✓</div></div>
-      <div class="sw-ttl">Sheet Updated!</div>
-      <div class="sw-msg" id="sw-msg">Your update has been saved.</div>
-      <!-- Back to list — onclick wired directly, always works -->
-      <button class="btn-back-list" onclick="showList()">← Back to my tasks</button>
-    </div>
-  </div>
+<!-- SUBMITTING OVERLAY -->
+<div class="submitting-overlay" id="submitting-overlay">
+  <div class="submitting-ring"></div>
+  <div class="submitting-text">Saving update…</div>
 </div>
 
 <script>
-/* ══════════════════════════════════════════════════════
-   ⚙️  CONFIG — paste your GAS deployment URL here
-══════════════════════════════════════════════════════ */
-var GAS_URL = 'https://script.google.com/macros/s/AKfycbyXwGH0FWHd-P1B29fk3xE5ka1Xjhl2RAR0BheHWiu4ZIx9TUqyT6pSUZ4ZpYRxZUqd/exec';
+// ── CONFIG ──────────────────────────────────────────────────
+var GAS_URL = "https://script.google.com/macros/s/AKfycbxdq83smG9bv2wJxFIx1KDIptbbCzbbcNolMA3fcHyLb5znNEC0OgqPfZG7lMgR6hPK/exec";
 
-/* ══════════════════════════════════════════════════════
-   CATEGORY OPTIONS
-   Must match GAS CONFIG.CATEGORY_OPTIONS exactly.
-   Update here if you add/rename a category in the sheet.
-══════════════════════════════════════════════════════ */
-var CATEGORY_OPTIONS = [
-  { value: '1. Hot',       label: 'Hot',       emoji: '🔴' },
-  { value: '2. Warm',      label: 'Warm',       emoji: '🟡' },
-  { value: '3. Cold',      label: 'Cold',       emoji: '🔵' },
-  { value: '4. Orderbook', label: 'Orderbook',  emoji: '🟢' },
-  { value: '5. Out',       label: 'Out',        emoji: '⚪' },
-  { value: '6. Concluded', label: 'Concluded',  emoji: '✅' }
-];
+var SMART_DAYS = {
+  "1. Hot": 3, "2. Warm": 7, "3. Cold": 30, "4. Orderbook": 14
+};
 
-/* ══════════════════════════════════════════════════════
-   STATE — single source of truth
-══════════════════════════════════════════════════════ */
-var S = { person: '', tasks: [], current: null, total: 0, done: 0 };
+// ── STATE ────────────────────────────────────────────────────
+var STATE = {
+  person:         "",
+  role:           "",
+  isManager:      false,
+  activeTab:      "",
+  allTasks:       {},      // manager: { Ashutosh: [...], ... }
+  tasks:          [],      // current visible tasks (salesperson or active tab)
+  pendingTasks:   [],      // not yet updated this session
+  currentTask:    null,
+  updatedCount:   0,
+  totalCount:     0
+};
 
-/* ══════════════════════════════════════════════════════
-   UTILS
-══════════════════════════════════════════════════════ */
-function esc(s) {
-  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-}
-
-function todayISO() {
-  var d = new Date();
-  return d.getFullYear() + '-' +
-    String(d.getMonth()+1).padStart(2,'0') + '-' +
-    String(d.getDate()).padStart(2,'0');
-}
-
-function plusDays(n) {
-  var d = new Date(); d.setDate(d.getDate() + n);
-  return d.getFullYear() + '-' +
-    String(d.getMonth()+1).padStart(2,'0') + '-' +
-    String(d.getDate()).padStart(2,'0');
-}
-
-function fmtDate(iso) {
-  var p = iso.split('-');
-  var mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  return parseInt(p[2]) + ' ' + mo[parseInt(p[1])-1] + ' ' + p[0];
-}
-
-function badge(t) {
-  return '<span class="badge ' + esc(t.badgeClass) + '">' + esc(t.categoryLabel) + '</span>';
-}
-
-/* Extracts the most recent update from the chained log.
-   Sheet format: "[15 May 2026 | Nandan] Text >>> [older]..."
-   Returns: "Text" only — no timestamp, no chain. */
-function extractLatestUpdate(s) {
-  var raw = String(s || '').trim();
-  if (!raw || raw === '-') return null;
-  var mostRecent = raw.split('>>>')[0].trim();
-  return mostRecent.replace(/^\[.*?\]\s*/, '').trim() || null;
-}
-
-/* Sets the date input to today + N days (quick-pick pills) */
-function setDatePill(days) {
-  var el = document.getElementById('f-date');
-  if (el) el.value = plusDays(days);
-}
-
-/* ══════════════════════════════════════════════════════
-   SCREEN MANAGER
-   Pure CSS .active swap — no history API whatsoever.
-   Fixes: back button, page won't reopen, all of it.
-══════════════════════════════════════════════════════ */
-var ALL_SCREENS = ['screen-loading','screen-error','screen-list','screen-form','screen-success'];
-
-function showScreen(id) {
-  ALL_SCREENS.forEach(function(s) {
-    document.getElementById(s).classList.toggle('active', s === id);
-  });
-  window.scrollTo(0, 0);
-}
-
-/* ══════════════════════════════════════════════════════
-   SHOW LIST (Screen 1) — always re-renders so progress
-   bar and task count stay accurate after submissions.
-══════════════════════════════════════════════════════ */
-function showList() {
-  renderList();
-}
-
-/* ══════════════════════════════════════════════════════
-   SHOW FORM (Screen 2)
-══════════════════════════════════════════════════════ */
-function showForm(idx) {
-  S.current = S.tasks[idx];
-  var t = S.current;
-
-  // Sub-bar label
-  document.getElementById('form-ctx-lbl').textContent = S.person + "'s tasks";
-  document.getElementById('form-hdr-date').textContent = document.getElementById('hdr-date').textContent;
-
-  // Context card — badge, client, project + teal action box + amber update box
-  var lastUpd = extractLatestUpdate(t.latestUpdate);
-  document.getElementById('ctx-card').innerHTML =
-    '<div class="ctx-badge">'  + badge(t) + '</div>' +
-    '<div class="ctx-client">' + esc(t.clientName) + '</div>' +
-    (t.projectName ? '<div class="ctx-proj">' + esc(t.projectName) + '</div>' : '') +
-    '<div class="ctx-div"></div>' +
-    '<div class="ctx-info ctx-action">' +
-      '<div class="ctx-info-lbl">Next Action</div>' +
-      '<div class="ctx-info-val">' + esc(t.actionPoint) + '</div>' +
-    '</div>' +
-    (lastUpd
-      ? '<div class="ctx-info ctx-update-box">' +
-          '<div class="ctx-info-lbl">Last Update</div>' +
-          '<div class="ctx-info-val">' + esc(lastUpd) + '</div>' +
-        '</div>'
-      : '');
-
-  // Reset form fields
-  document.getElementById('f-update').value = '';
-  document.getElementById('f-action').value = '';
-
-  // Pre-select current category in dropdown
-  var catSel = document.getElementById('f-cat');
-  if (catSel) catSel.value = t.categoryRaw || '1. Hot';
-
-  var dateInput = document.getElementById('f-date');
-  dateInput.value = plusDays(3);
-  dateInput.min   = todayISO();
-  var st = document.getElementById('st-msg');
-  st.className = 'st-msg'; st.textContent = '';
-  var btn = document.getElementById('btn-save');
-  btn.disabled = false; btn.textContent = 'Save to Sheet';
-
-  showScreen('screen-form');
-}
-
-/* ══════════════════════════════════════════════════════
-   SUBMIT → GAS update action
-══════════════════════════════════════════════════════ */
-function submitUpdate() {
-  var upd = document.getElementById('f-update').value.trim();
-  var act = document.getElementById('f-action').value.trim();
-  var dt  = document.getElementById('f-date').value.trim();
-  var cat = (document.getElementById('f-cat') ? document.getElementById('f-cat').value : '').trim();
-  var btn = document.getElementById('btn-save');
-  var st  = document.getElementById('st-msg');
-
-  if (!upd) { setSt(false, 'Please describe what happened.');       return; }
-  if (!act) { setSt(false, 'Please fill in the next action item.'); return; }
-  if (!dt)  { setSt(false, 'Please pick a follow-up date.');        return; }
-
-  btn.disabled = true; btn.textContent = 'Saving…';
-  st.className = 'st-msg'; st.textContent = '';
-
-  var origCat = S.current.categoryRaw || '';
-
-  var p = new URLSearchParams({
-    action:       'update',
-    rowNumber:    S.current.rowNumber,
-    latestUpdate: upd,
-    actionPoint:  act,
-    nextFollowUp: dt,
-    category:     cat,
-    person:       S.person
-  });
-
-  fetch(GAS_URL + '?' + p.toString(), { method:'GET', mode:'cors', redirect:'follow' })
-    .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-    .then(function(d) {
-      if (d.success) {
-        // ── Remove submitted task from list & update progress ──
-        var idx = S.tasks.indexOf(S.current);
-        if (idx !== -1) { S.tasks.splice(idx, 1); }
-        S.done++;
-
-        var catChanged = cat && cat !== origCat;
-        document.getElementById('sw-msg').innerHTML =
-          '<strong>' + esc(S.current.clientName) + '</strong> has been updated.<br>' +
-          'Update, action &amp; follow-up date saved to sheet.' +
-          (catChanged
-            ? '<br>Category changed to <strong>' + esc(cat.replace(/^\d+\.\s*/, '')) + '</strong>.'
-            : '');
-        showScreen('screen-success');
-      } else {
-        setSt(false, d.message || 'Update failed. Please try again.');
-        btn.disabled = false; btn.textContent = 'Save to Sheet';
-      }
-    })
-    .catch(function(err) {
-      setSt(false, 'Network error. Check your connection and try again.');
-      btn.disabled = false; btn.textContent = 'Save to Sheet';
-      console.error('Submit error:', err);
-    });
-}
-
-function setSt(ok, msg) {
-  var el = document.getElementById('st-msg');
-  el.textContent = (ok ? '✅ ' : '❌ ') + msg;
-  el.className = 'st-msg ' + (ok ? 'st-ok' : 'st-err');
-}
-
-/* ══════════════════════════════════════════════════════
-   RENDER TASK LIST after fetch / after submit
-══════════════════════════════════════════════════════ */
-function renderList() {
-  var today = todayISO();
-  document.getElementById('hdr-date').textContent  = fmtDate(today);
-  document.getElementById('list-greet').textContent = 'Hi ' + S.person + ' 👋';
-  var n = S.tasks.length;
-  document.getElementById('list-ct').textContent = n + ' task' + (n !== 1 ? 's' : '') + ' remaining';
-
-  // ── Progress bar ─────────────────────────────────────
-  var progSection = document.getElementById('prog-section');
-  if (S.total > 0) {
-    progSection.style.display = 'block';
-    var pct = Math.round((S.done / S.total) * 100);
-    var fill = document.getElementById('prog-fill');
-    fill.style.width = pct + '%';
-    fill.className = 'prog-fill' + (pct === 100 ? ' complete' : '');
-    document.getElementById('prog-count').textContent = S.done + ' / ' + S.total + ' updated';
-  } else {
-    progSection.style.display = 'none';
-  }
-
-  var listEl = document.getElementById('task-list');
-  var lblEl  = document.getElementById('list-lbl');
-
-  if (n === 0) {
-    lblEl.textContent = '';
-    listEl.innerHTML =
-      '<div class="empty">' +
-      '<div class="empty-ic">🎉</div>' +
-      '<div class="empty-ttl">All caught up!</div>' +
-      '<div class="empty-msg">No follow-ups due today.<br>Check back tomorrow.</div>' +
-      '</div>';
-  } else {
-    lblEl.textContent = 'Tap a client to update';
-    var html = '';
-    S.tasks.forEach(function(t, i) {
-      html +=
-        '<div class="tc" onclick="showForm(' + i + ')">' +
-        '<div class="tc-body">' +
-        '<div class="tc-top">' + badge(t) + '</div>' +
-        '<div class="tc-client">' + esc(t.clientName)  + '</div>' +
-        '<div class="tc-proj">'   + esc(t.projectName) + '</div>' +
-        '</div>' +
-        '<div class="tc-arrow">→</div>' +
-        '</div>';
-    });
-    listEl.innerHTML = html;
-  }
-  showScreen('screen-list');
-}
-
-/* ══════════════════════════════════════════════════════
-   BOOT — runs once on page load
-   1. Read ?person= from URL
-   2. Fetch tasks from GAS JSON endpoint (25s timeout)
-   3. Show "still loading" nudge after 5s
-   4. Render list or show error
-══════════════════════════════════════════════════════ */
-(function boot() {
+// ── INIT ─────────────────────────────────────────────────────
+(function init() {
   var params = new URLSearchParams(window.location.search);
-  var person = (params.get('person') || '').trim();
+  STATE.person    = (params.get("person") || "").trim();
+  STATE.role      = (params.get("role")   || "").trim();
+  STATE.isManager = STATE.role === "manager" && STATE.person === "Ayushi";
 
-  if (!person) {
-    document.getElementById('err-txt').textContent =
-      'No person found in the link. Please open this page from your WhatsApp message — the button includes your name automatically.';
-    showScreen('screen-error');
+  if (!STATE.person) {
+    showError("No person specified in URL. Please use the link from your WhatsApp message.");
     return;
   }
 
-  S.person = person;
-
-  // Show "taking longer" nudge after 5s
+  // Slow-load warning
   var slowTimer = setTimeout(function() {
-    var el = document.getElementById('loader-slow');
-    if (el) el.style.display = 'block';
+    var el = document.getElementById("slow-msg");
+    if (el) el.style.display = "block";
   }, 5000);
 
-  // Hard abort after 25s
+  // Fetch with timeout
   var controller = new AbortController();
-  var abortTimer = setTimeout(function() { controller.abort(); }, 25000);
+  var fetchTimer = setTimeout(function() { controller.abort(); }, 25000);
 
-  fetch(GAS_URL + '?action=getTasks&person=' + encodeURIComponent(person),
-        { method:'GET', mode:'cors', redirect:'follow', signal: controller.signal })
-    .then(function(r) {
+  var url = GAS_URL + "?action=getTasks&person=" + encodeURIComponent(STATE.person)
+          + "&role=" + encodeURIComponent(STATE.role);
+
+  fetch(url, { signal: controller.signal })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
       clearTimeout(slowTimer);
-      clearTimeout(abortTimer);
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      return r.json();
-    })
-    .then(function(d) {
-      if (!d.success) throw new Error(d.message || 'Failed to load tasks.');
-      S.tasks = d.tasks || [];
-      S.total = S.tasks.length;   // set once; stays fixed for progress %
-      S.done  = 0;
-      renderList();
+      clearTimeout(fetchTimer);
+      if (data.status !== "ok") throw new Error(data.message || "Unknown error");
+      onTasksLoaded(data);
     })
     .catch(function(err) {
       clearTimeout(slowTimer);
-      clearTimeout(abortTimer);
-      var msg = err.name === 'AbortError'
-        ? 'Request timed out after 25 seconds. Check your internet and reopen the link.'
-        : 'Could not load tasks: ' + err.message + '. Close and reopen the link from WhatsApp.';
-      document.getElementById('err-txt').textContent = msg;
-      showScreen('screen-error');
-      console.error('Boot error:', err);
+      clearTimeout(fetchTimer);
+      showError(err.name === "AbortError"
+        ? "Request timed out. Please check your connection and try again."
+        : "Could not load tasks: " + err.message);
     });
 })();
+
+// ── ON TASKS LOADED ──────────────────────────────────────────
+function onTasksLoaded(data) {
+  if (STATE.isManager) {
+    STATE.allTasks = data.tasks || {};
+    setupManagerTabs();
+  } else {
+    STATE.tasks       = data.tasks || [];
+    STATE.pendingTasks = STATE.tasks.slice();
+    STATE.totalCount  = STATE.tasks.length;
+    renderTaskList(STATE.tasks);
+  }
+  showScreen("screen-list");
+}
+
+// ── MANAGER TABS ─────────────────────────────────────────────
+function setupManagerTabs() {
+  var tabs     = ["Ashutosh", "Chetan", "Hrushikesh", "Anudit", "Ayushi"];
+  var container = document.getElementById("manager-tabs");
+  var wrap     = document.getElementById("manager-tabs-container");
+  wrap.style.display = "block";
+
+  // Header
+  document.getElementById("list-title").textContent = "Hi Ayushi 👋";
+  document.getElementById("list-sub").textContent   = "Manager View";
+
+  container.innerHTML = "";
+  tabs.forEach(function(tab) {
+    var tasks = STATE.allTasks[tab] || [];
+    var btn   = document.createElement("button");
+    btn.className  = "tab-btn";
+    btn.dataset.tab = tab;
+    btn.innerHTML  = tab + '<span class="tab-count">' + tasks.length + '</span>';
+    btn.onclick    = function() { switchTab(tab); };
+    container.appendChild(btn);
+  });
+
+  // Activate first tab with tasks, else first tab
+  var firstTab = tabs.find(function(t) { return (STATE.allTasks[t] || []).length > 0; }) || tabs[0];
+  switchTab(firstTab);
+}
+
+function switchTab(tab) {
+  STATE.activeTab    = tab;
+  STATE.tasks        = STATE.allTasks[tab] || [];
+  STATE.pendingTasks = STATE.tasks.slice();
+  STATE.updatedCount = 0;
+  STATE.totalCount   = STATE.tasks.length;
+
+  // Update tab UI
+  document.querySelectorAll(".tab-btn").forEach(function(b) {
+    b.classList.toggle("active", b.dataset.tab === tab);
+  });
+
+  updateProgress();
+  renderTaskList(STATE.tasks);
+}
+
+// ── RENDER TASK LIST ─────────────────────────────────────────
+function renderTaskList(tasks) {
+  var list  = document.getElementById("task-list");
+  var badge = document.getElementById("list-badge");
+
+  document.getElementById("list-title").textContent = STATE.isManager
+    ? "Hi Ayushi 👋"
+    : "Hi " + STATE.person + " 👋";
+  document.getElementById("list-sub").textContent = STATE.isManager
+    ? "Manager View"
+    : formatDateDisplay(new Date());
+
+  badge.textContent = tasks.length + (tasks.length === 1 ? " task" : " tasks");
+
+  if (tasks.length === 0) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-icon">🎉</div><p>All caught up!<br>No pending tasks for today.</p></div>';
+    return;
+  }
+
+  list.innerHTML = "";
+  tasks.forEach(function(task, i) {
+    list.appendChild(buildTaskCard(task, i));
+  });
+}
+
+function buildTaskCard(task, i) {
+  var catClass = getCatClass(task.category);
+  var div = document.createElement("div");
+  div.className = "task-card " + catClass;
+  div.style.animationDelay = (i * 50) + "ms";
+  div.onclick = function() { openForm(task); };
+
+  var overdueHtml = "";
+  if (task.overdueDays > 0) {
+    overdueHtml = '<span class="overdue-badge">' + task.overdueDays + (task.overdueDays === 1 ? " day" : " days") + ' overdue</span>';
+  }
+
+  div.innerHTML =
+    '<div class="card-top">' +
+      '<span class="card-cat">' + getCatShort(task.category) + '</span>' +
+      overdueHtml +
+    '</div>' +
+    '<div class="card-client">' + esc(task.clientName) + '</div>' +
+    '<div class="card-project">' + esc(task.projectName) + '</div>' +
+    (task.actionPoint ? '<div class="card-action">' + esc(task.actionPoint) + '</div>' : '') +
+    '<span class="card-arrow">›</span>';
+
+  return div;
+}
+
+// ── SEARCH ───────────────────────────────────────────────────
+document.getElementById("search-input").addEventListener("input", function() {
+  var q = this.value.toLowerCase().trim();
+  if (!q) {
+    renderTaskList(STATE.tasks);
+    return;
+  }
+  var filtered = STATE.tasks.filter(function(t) {
+    return t.clientName.toLowerCase().includes(q) ||
+           t.projectName.toLowerCase().includes(q);
+  });
+  renderTaskList(filtered);
+});
+
+// ── OPEN FORM ────────────────────────────────────────────────
+function openForm(task) {
+  STATE.currentTask = task;
+
+  document.getElementById("form-client").textContent  = task.clientName;
+  document.getElementById("form-project").textContent = task.projectName;
+
+  // Context card
+  var ctxAction = document.getElementById("ctx-action");
+  var ctxUpdate = document.getElementById("ctx-update");
+  ctxAction.innerHTML = task.actionPoint
+    ? esc(task.actionPoint)
+    : '<span class="ctx-empty">No action point set</span>';
+  ctxUpdate.innerHTML = task.latestUpdate
+    ? esc(task.latestUpdate)
+    : '<span class="ctx-empty">No updates yet</span>';
+
+  // Update history toggle
+  buildHistoryToggle(task.fullUpdateChain);
+
+  // Reset form fields
+  document.getElementById("update-text").value  = "";
+  document.getElementById("action-point").value = task.actionPoint || "";
+  document.querySelectorAll(".quick-btn").forEach(function(b) { b.classList.remove("selected"); });
+
+  // Category
+  var sel = document.getElementById("category-select");
+  sel.value = task.category;
+
+  // Smart default date
+  setSmartDefaultDate(task.category);
+
+  showScreen("screen-form");
+  setTimeout(function() { document.getElementById("update-text").focus(); }, 300);
+}
+
+// ── HISTORY TOGGLE ───────────────────────────────────────────
+function buildHistoryToggle(fullChain) {
+  var wrap    = document.getElementById("history-toggle-wrap");
+  var list    = document.getElementById("history-list");
+  var toggle  = document.getElementById("history-toggle");
+
+  if (!fullChain || fullChain.indexOf(">>>") === -1) {
+    wrap.style.display = "none";
+    return;
+  }
+
+  var entries = fullChain.split(">>>").map(function(s) { return s.trim(); }).filter(Boolean);
+  if (entries.length <= 1) { wrap.style.display = "none"; return; }
+
+  // Only history (entries after the first, which is shown in ctx-update)
+  var historyEntries = entries.slice(1);
+  toggle.childNodes[0].textContent = "View history (" + historyEntries.length + (historyEntries.length === 1 ? " entry" : " entries") + ") ";
+  toggle.classList.remove("open");
+  list.classList.remove("open");
+
+  list.innerHTML = historyEntries.map(function(e, i) {
+    return '<div class="history-entry"><span class="history-num">#' + (i+2) + '</span>' + esc(e) + '</div>';
+  }).join("");
+
+  wrap.style.display = "block";
+}
+
+function toggleHistory() {
+  var toggle = document.getElementById("history-toggle");
+  var list   = document.getElementById("history-list");
+  toggle.classList.toggle("open");
+  list.classList.toggle("open");
+}
+
+// ── QUICK FILL ───────────────────────────────────────────────
+function quickFill(btn, text) {
+  var textarea = document.getElementById("update-text");
+  document.querySelectorAll(".quick-btn").forEach(function(b) { b.classList.remove("selected"); });
+  if (textarea.value === text) {
+    textarea.value = "";
+  } else {
+    btn.classList.add("selected");
+    textarea.value = text;
+    textarea.focus();
+  }
+}
+
+// ── DATE HELPERS ─────────────────────────────────────────────
+function setSmartDefaultDate(category) {
+  var days = SMART_DAYS[category] || 7;
+  setDateOffset(days, null);
+  // Highlight matching pill
+  document.querySelectorAll(".date-pill").forEach(function(p) {
+    p.classList.toggle("active", parseInt(p.textContent) === days ||
+      (p.textContent === "3 days" && days === 3) ||
+      (p.textContent === "1 week" && days === 7) ||
+      (p.textContent === "2 weeks" && days === 14) ||
+      (p.textContent === "1 month" && days === 30));
+  });
+}
+
+function setDateOffset(days, btn) {
+  var d = new Date();
+  d.setDate(d.getDate() + days);
+  document.getElementById("next-date").value = toISODate(d);
+  document.querySelectorAll(".date-pill").forEach(function(p) { p.classList.remove("active"); });
+  if (btn) btn.classList.add("active");
+}
+
+// ── CATEGORY CHANGE → smart date update ─────────────────────
+document.getElementById("category-select").addEventListener("change", function() {
+  setSmartDefaultDate(this.value);
+});
+
+// ── CONFIRM POPUP ────────────────────────────────────────────
+function showConfirmPopup() {
+  var updateText = document.getElementById("update-text").value.trim();
+  var nextDate   = document.getElementById("next-date").value;
+
+  if (!updateText) {
+    alert("Please enter an update before saving.");
+    document.getElementById("update-text").focus();
+    return;
+  }
+  if (!nextDate) {
+    alert("Please select a next follow-up date.");
+    return;
+  }
+
+  var t = STATE.currentTask;
+  var catSelect = document.getElementById("category-select");
+  document.getElementById("popup-client").textContent = t.clientName;
+  document.getElementById("popup-date").textContent   = formatDateDisplay(new Date(nextDate + "T00:00:00"));
+  document.getElementById("popup-cat").textContent    = getCatShort(catSelect.value);
+
+  document.getElementById("confirm-popup").classList.add("open");
+}
+
+function hideConfirmPopup() {
+  document.getElementById("confirm-popup").classList.remove("open");
+}
+
+// ── SUBMIT ───────────────────────────────────────────────────
+function submitUpdate() {
+  hideConfirmPopup();
+
+  var t          = STATE.currentTask;
+  var updateText = document.getElementById("update-text").value.trim();
+  var actionPoint = document.getElementById("action-point").value.trim();
+  var nextDate   = document.getElementById("next-date").value;
+  var category   = document.getElementById("category-select").value;
+
+  document.getElementById("submitting-overlay").classList.add("open");
+  document.getElementById("submit-btn").disabled = true;
+
+  var params = new URLSearchParams({
+    action:      "update",
+    person:      STATE.isManager ? STATE.activeTab : STATE.person,
+    submittedBy: STATE.person,
+    rowNumber:   t.rowNumber,
+    updateText:  updateText,
+    actionPoint: actionPoint,
+    nextDate:    nextDate,
+    category:    category
+  });
+
+  var controller = new AbortController();
+  var timer = setTimeout(function() { controller.abort(); }, 25000);
+
+  fetch(GAS_URL + "?" + params.toString(), { signal: controller.signal })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      clearTimeout(timer);
+      document.getElementById("submitting-overlay").classList.remove("open");
+      document.getElementById("submit-btn").disabled = false;
+
+      if (data.status !== "ok") throw new Error(data.message || "Update failed");
+      onUpdateSuccess(t);
+    })
+    .catch(function(err) {
+      clearTimeout(timer);
+      document.getElementById("submitting-overlay").classList.remove("open");
+      document.getElementById("submit-btn").disabled = false;
+      alert(err.name === "AbortError"
+        ? "Request timed out. Please check your connection."
+        : "Failed to save: " + err.message);
+    });
+}
+
+// ── ON SUCCESS ───────────────────────────────────────────────
+function onUpdateSuccess(task) {
+  // Remove from pending
+  STATE.pendingTasks = STATE.pendingTasks.filter(function(t) { return t.rowNumber !== task.rowNumber; });
+
+  // Remove from tasks list (current view)
+  STATE.tasks = STATE.tasks.filter(function(t) { return t.rowNumber !== task.rowNumber; });
+
+  // Remove from allTasks if manager
+  if (STATE.isManager && STATE.activeTab) {
+    STATE.allTasks[STATE.activeTab] = (STATE.allTasks[STATE.activeTab] || []).filter(function(t) {
+      return t.rowNumber !== task.rowNumber;
+    });
+    // Update tab count badge
+    document.querySelectorAll(".tab-btn").forEach(function(b) {
+      if (b.dataset.tab === STATE.activeTab) {
+        b.querySelector(".tab-count").textContent = STATE.allTasks[STATE.activeTab].length;
+      }
+    });
+  }
+
+  STATE.updatedCount++;
+  updateProgress();
+
+  // Success screen
+  var successTitle = document.getElementById("success-title");
+  var successSub   = document.getElementById("success-sub");
+  var nextBtn      = document.getElementById("next-task-btn");
+
+  if (STATE.isManager) {
+    successTitle.textContent = "Updated successfully on behalf of " + STATE.activeTab + "!";
+    successSub.textContent   = task.clientName + " — " + task.projectName;
+  } else {
+    successTitle.textContent = "Update Saved!";
+    successSub.textContent   = task.clientName + " has been updated.";
+  }
+
+  // Next task button
+  if (STATE.tasks.length > 0) {
+    nextBtn.style.display = "block";
+  } else {
+    nextBtn.style.display = "none";
+    successSub.textContent += "\n\nAll tasks for today are done! 🎉";
+  }
+
+  showScreen("screen-success");
+}
+
+// ── NAVIGATION ───────────────────────────────────────────────
+function goBack() {
+  // Re-render current state (task may have been removed)
+  renderTaskList(STATE.tasks);
+  showScreen("screen-list");
+}
+
+function goToList() {
+  renderTaskList(STATE.tasks);
+  showScreen("screen-list");
+}
+
+function goToNextTask() {
+  if (STATE.tasks.length === 0) {
+    goToList();
+    return;
+  }
+  openForm(STATE.tasks[0]);
+}
+
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(function(s) { s.classList.remove("active"); });
+  document.getElementById(id).classList.add("active");
+  window.scrollTo(0, 0);
+}
+
+function showError(msg) {
+  document.getElementById("error-msg").textContent = msg;
+  showScreen("screen-error");
+}
+
+// ── PROGRESS ─────────────────────────────────────────────────
+function updateProgress() {
+  var total   = STATE.totalCount;
+  var done    = STATE.updatedCount;
+  var pct     = total > 0 ? Math.round((done / total) * 100) : 0;
+
+  document.getElementById("progress-text").textContent = done + " of " + total + " updated";
+  document.getElementById("progress-pct").textContent  = pct + "%";
+  document.getElementById("progress-fill").style.width = pct + "%";
+  document.getElementById("list-badge").textContent    = STATE.tasks.length + (STATE.tasks.length === 1 ? " task" : " tasks");
+}
+
+// ── UTILITIES ────────────────────────────────────────────────
+function getCatClass(cat) {
+  if (cat === "1. Hot")       return "cat-hot";
+  if (cat === "2. Warm")      return "cat-warm";
+  if (cat === "3. Cold")      return "cat-cold";
+  if (cat === "4. Orderbook") return "cat-order";
+  return "cat-cold";
+}
+
+function getCatShort(cat) {
+  var map = { "1. Hot":"🔴 Hot", "2. Warm":"🟡 Warm", "3. Cold":"🔵 Cold",
+              "4. Orderbook":"📦 Orderbook", "5. Out":"⚪ Out", "6. Concluded":"✅ Concluded" };
+  return map[cat] || cat;
+}
+
+function formatDateDisplay(d) {
+  var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  return d.getDate() + " " + months[d.getMonth()] + " " + d.getFullYear();
+}
+
+function toISODate(d) {
+  var mm = String(d.getMonth()+1).padStart(2,"0");
+  var dd = String(d.getDate()).padStart(2,"0");
+  return d.getFullYear() + "-" + mm + "-" + dd;
+}
+
+function esc(str) {
+  if (!str) return "";
+  return String(str)
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
 </script>
 </body>
 </html>
