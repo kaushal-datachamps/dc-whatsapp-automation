@@ -484,15 +484,10 @@ function setupManagerTabs() {
 function switchTab(tab) {
   S.activeTab    = tab;
   S.allRawTasks  = (S.allTasks[tab] || []).slice();
-  S.tasks        = S.allRawTasks;
-  S.todayTasks   = S.allRawTasks;
-  S.overdueTasks = [];
   S.updatedCount = 0;
-  S.totalCount   = S.tasks.length;
   document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.tab === tab); });
+  applyFilter(); // runs ALWAYS_HIDDEN + today/overdue split + renderList + renderOverdueButton
   updateProgress();
-  renderList(S.tasks);
-  renderOverdueButton();
 }
 
 // ── FILTER LOGIC ──────────────────────────────────────────────────────────────
