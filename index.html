@@ -280,6 +280,7 @@
       </div>
     </div>
   </div>
+
   <div class="list-body" id="task-list"></div>
 </div>
 
@@ -443,9 +444,8 @@ function onTasksLoaded(data) {
     S.allTasks = data.tasks || {};
     setupManagerTabs();
   } else {
-    S.tasks      = data.tasks || [];
-    S.totalCount = S.tasks.length;
-    renderList(S.tasks);
+    S.allRawTasks = data.tasks || [];
+    applyFilter();
   }
   showScreen('screen-list');
 }
@@ -475,10 +475,34 @@ function setupManagerTabs() {
 function switchTab(tab) {
   S.activeTab    = tab;
   S.tasks        = S.allTasks[tab] || [];
+  S.allRawTasks  = S.tasks.slice();
   S.updatedCount = 0;
   S.totalCount   = S.tasks.length;
   document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.tab === tab); });
   updateProgress();
+  renderList(S.tasks);
+}
+
+// ── FILTER LOGIC ──────────────────────────────────────────────────────────────
+// Always hidden: Concluded (6), Out (5), Orderbook (4)
+// 1st of month: show Hot + Warm + Cold
+// Any other day: show Hot + Warm only
+var ALWAYS_HIDDEN = ['4. Orderbook', '5. Out', '6. Concluded'];
+
+function isFirstOfMonth() {
+  return new Date().getDate() === 1;
+}
+
+function applyFilter() {
+  var raw = S.allRawTasks || [];
+  // Remove always-hidden categories
+  var visible = raw.filter(function(t){ return ALWAYS_HIDDEN.indexOf(t.category) === -1; });
+  // On 1st of month: Hot + Warm + Cold. Any other day: Hot + Warm only
+  if (!isFirstOfMonth()) {
+    visible = visible.filter(function(t){ return t.category === '1. Hot' || t.category === '2. Warm'; });
+  }
+  S.tasks      = visible;
+  S.totalCount = visible.length;
   renderList(S.tasks);
 }
 
@@ -523,8 +547,10 @@ function buildCard(task, i) {
 // ── SEARCH ────────────────────────────────────────────────────────────────────
 document.getElementById('search-input').addEventListener('input', function() {
   var q = this.value.toLowerCase().trim();
-  if (!q) { renderList(S.tasks); return; }
-  renderList(S.tasks.filter(function(t){
+  if (!q) { applyFilter(); return; }
+  // Search within currently visible tasks only
+  var source = S.tasks;
+  renderList(source.filter(function(t){
     return t.clientName.toLowerCase().includes(q) || t.projectName.toLowerCase().includes(q);
   }));
 });
@@ -538,7 +564,8 @@ function openForm(task) {
   var ctxA = document.getElementById('ctx-action');
   var ctxU = document.getElementById('ctx-update');
   ctxA.innerHTML = task.actionPoint ? esc(task.actionPoint) : '<span class="ctx-empty">No action point set</span>';
-  ctxU.innerHTML = task.latestUpdate ? esc(task.latestUpdate) : '<span class="ctx-empty">No updates yet</span>';
+  var latest = extractLatest(task.fullUpdateChain);
+  ctxU.innerHTML = latest ? esc(latest) : '<span class="ctx-empty">No updates yet</span>';
 
   buildHistory(task.fullUpdateChain);
 
@@ -557,8 +584,10 @@ function buildHistory(chain) {
   var wrap   = document.getElementById('history-wrap');
   var list   = document.getElementById('history-list');
   var toggle = document.getElementById('history-toggle');
-  if (!chain || chain.indexOf('>>>') === -1) { wrap.style.display='none'; return; }
-  var entries = chain.split('>>>').map(function(s){ return s.trim(); }).filter(Boolean);
+  if (!chain) { wrap.style.display='none'; return; }
+  var sep = chain.indexOf('>>>') !== -1 ? '>>>' : (chain.indexOf('>>') !== -1 ? '>>' : null);
+  if (!sep) { wrap.style.display='none'; return; }
+  var entries = chain.split(sep).map(function(s){ return s.trim(); }).filter(Boolean);
   if (entries.length <= 1) { wrap.style.display='none'; return; }
   var hist = entries.slice(1);
   toggle.childNodes[0].textContent = 'View history (' + hist.length + (hist.length===1?' entry':' entries') + ') ';
@@ -720,6 +749,16 @@ function fmtDate(d) {
 function toISO(d) {
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 }
+function extractLatest(chain) {
+  if (!chain) return '';
+  // Strip old [date | person] prefix if present
+  var stripped = chain.replace(/^\[[^\]]+\]\s*/, '').trim();
+  // Split on >>> or >> and return only first entry
+  if (stripped.indexOf('>>>') !== -1) return stripped.split('>>>')[0].trim();
+  if (stripped.indexOf('>>') !== -1)  return stripped.split('>>')[0].trim();
+  return stripped;
+}
+
 function esc(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
