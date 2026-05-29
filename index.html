@@ -282,6 +282,14 @@
   </div>
 
   <div class="list-body" id="task-list"></div>
+
+  <!-- OVERDUE SECTION -->
+  <div id="overdue-section" style="display:none;max-width:560px;margin:0 auto;padding:0 16px 24px">
+    <button onclick="toggleOverdue()" id="overdue-btn" style="width:100%;padding:11px 16px;background:var(--paper);border:1.5px solid var(--hot-border);border-radius:var(--r-md);color:var(--hot);font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .15s">
+      <span>⚠️</span><span id="overdue-btn-label">View Overdue</span>
+    </button>
+    <div id="overdue-list" style="display:none;margin-top:10px"></div>
+  </div>
 </div>
 
 <!-- FORM -->
@@ -396,14 +404,15 @@
 <script>
 // ── CONFIG ──────────────────────────────────────────────────────────────────
 // ⚠️  UPDATE THIS URL after every new GAS deployment (Deploy → Manage → New Version)
-var GAS_URL = 'https://script.google.com/macros/s/AKfycbxdq83smG9bv2wJxFIx1KDIptbbCzbbcNolMA3fcHyLb5znNEC0OgqPfZG7lMgR6hPK/exec';
+var GAS_URL = 'https://script.google.com/macros/s/AKfycbxNQaAXRBlKfEew3JDjd_1czmrQRoHSfe-hSgEzBymaCDbUK1ntBr4qlI7VJ-egACBV/exec';
 
 var SMART_DAYS = { '1. Hot':3, '2. Warm':7, '3. Cold':30, '4. Orderbook':14 };
 
 // ── STATE ────────────────────────────────────────────────────────────────────
 var S = {
   person:'', role:'', isManager:false, activeTab:'',
-  allTasks:{}, tasks:[], updatedCount:0, totalCount:0, currentTask:null
+  allTasks:{}, allRawTasks:[], tasks:[], todayTasks:[], overdueTasks:[],
+  updatedCount:0, totalCount:0, currentTask:null, overdueOpen:false
 };
 
 // ── INIT ─────────────────────────────────────────────────────────────────────
@@ -474,13 +483,16 @@ function setupManagerTabs() {
 
 function switchTab(tab) {
   S.activeTab    = tab;
-  S.tasks        = S.allTasks[tab] || [];
-  S.allRawTasks  = S.tasks.slice();
+  S.allRawTasks  = (S.allTasks[tab] || []).slice();
+  S.tasks        = S.allRawTasks;
+  S.todayTasks   = S.allRawTasks;
+  S.overdueTasks = [];
   S.updatedCount = 0;
   S.totalCount   = S.tasks.length;
   document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.tab === tab); });
   updateProgress();
   renderList(S.tasks);
+  renderOverdueButton();
 }
 
 // ── FILTER LOGIC ──────────────────────────────────────────────────────────────
@@ -501,9 +513,37 @@ function applyFilter() {
   if (!isFirstOfMonth()) {
     visible = visible.filter(function(t){ return t.category === '1. Hot' || t.category === '2. Warm'; });
   }
-  S.tasks      = visible;
-  S.totalCount = visible.length;
+  // Split into today (overdueDays === 0) and overdue (overdueDays > 0)
+  S.todayTasks   = visible.filter(function(t){ return t.overdueDays === 0; });
+  S.overdueTasks = visible.filter(function(t){ return t.overdueDays > 0; });
+  S.tasks        = S.todayTasks; // main list shows today only
+  S.totalCount   = S.todayTasks.length;
   renderList(S.tasks);
+  renderOverdueButton();
+}
+
+// ── OVERDUE BUTTON ───────────────────────────────────────────────────────────
+function renderOverdueButton() {
+  var el = document.getElementById('overdue-section');
+  if (!el) return;
+  var count = (S.overdueTasks || []).length;
+  if (count === 0) { el.style.display = 'none'; return; }
+  el.style.display = 'block';
+  document.getElementById('overdue-btn-label').textContent =
+    S.overdueOpen ? 'Hide Overdue Tasks' : 'View Overdue (' + count + ')';
+  var list = document.getElementById('overdue-list');
+  if (S.overdueOpen) {
+    list.style.display = 'block';
+    list.innerHTML = '';
+    S.overdueTasks.forEach(function(t, i) { list.appendChild(buildCard(t, i)); });
+  } else {
+    list.style.display = 'none';
+  }
+}
+
+function toggleOverdue() {
+  S.overdueOpen = !S.overdueOpen;
+  renderOverdueButton();
 }
 
 // ── RENDER TASK LIST ──────────────────────────────────────────────────────────
@@ -688,7 +728,10 @@ function submitUpdate() {
 
 // ── ON SUCCESS ────────────────────────────────────────────────────────────────
 function onSuccess(task) {
-  S.tasks = S.tasks.filter(function(t){ return t.rowNumber !== task.rowNumber; });
+  S.tasks        = S.tasks.filter(function(t){ return t.rowNumber !== task.rowNumber; });
+  S.todayTasks   = (S.todayTasks   || []).filter(function(t){ return t.rowNumber !== task.rowNumber; });
+  S.overdueTasks = (S.overdueTasks || []).filter(function(t){ return t.rowNumber !== task.rowNumber; });
+  if (S.allRawTasks) S.allRawTasks = S.allRawTasks.filter(function(t){ return t.rowNumber !== task.rowNumber; });
   if (S.isManager && S.activeTab) {
     S.allTasks[S.activeTab] = (S.allTasks[S.activeTab]||[]).filter(function(t){ return t.rowNumber !== task.rowNumber; });
     document.querySelectorAll('.tab-btn').forEach(function(b){
@@ -705,6 +748,7 @@ function onSuccess(task) {
   title.textContent = S.isManager ? 'Updated on behalf of ' + S.activeTab + '!' : 'Update Saved!';
   sub.textContent   = task.clientName + (S.tasks.length===0 ? '\n\nAll tasks done! 🎉' : ' has been updated.');
   next.style.display = S.tasks.length > 0 ? 'block' : 'none';
+  renderOverdueButton();
   showScreen('screen-success');
 }
 
@@ -753,10 +797,10 @@ function extractLatest(chain) {
   if (!chain) return '';
   // Strip old [date | person] prefix if present
   var stripped = chain.replace(/^\[[^\]]+\]\s*/, '').trim();
-  // Split on >>> or >> and return only first entry
-  if (stripped.indexOf('>>>') !== -1) return stripped.split('>>>')[0].trim();
-  if (stripped.indexOf('>>') !== -1)  return stripped.split('>>')[0].trim();
-  return stripped;
+  // Normalise: collapse all whitespace around >> and >>> so split always works
+  // e.g. "text.>>next" and "text >> next" and "text>>>next" all handled
+  stripped = stripped.replace(/\s*>{2,3}\s*/g, '>>>');
+  return stripped.split('>>>')[0].trim();
 }
 
 function esc(s) {
