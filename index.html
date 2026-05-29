@@ -296,10 +296,10 @@
     <div class="field">
       <label class="field-label">Your Update</label>
       <div class="quick-actions">
-        <button class="quick-btn" onclick="quickFill(this,'Called — no answer')">📞 Called, no answer</button>
-        <button class="quick-btn" onclick="quickFill(this,'Meeting scheduled')">📅 Meeting scheduled</button>
-        <button class="quick-btn" onclick="quickFill(this,'Proposal sent')">📄 Proposal sent</button>
-        <button class="quick-btn" onclick="quickFill(this,'Spoke with client')">💬 Spoke with client</button>
+        <button class="quick-btn" onclick="quickFill(this,\'Called — no answer\')">📞 Called, no answer</button>
+        <button class="quick-btn" onclick="quickFill(this,\'Meeting scheduled\')">📅 Meeting scheduled</button>
+        <button class="quick-btn" onclick="quickFill(this,\'Proposal sent\')">📄 Proposal sent</button>
+        <button class="quick-btn" onclick="quickFill(this,\'Spoke with client\')">💬 Spoke with client</button>
       </div>
       <textarea class="field-input" id="update-text" rows="3" placeholder="What happened? What is the status?"></textarea>
     </div>
@@ -377,7 +377,7 @@
 <script>
 // ── CONFIG ──────────────────────────────────────────────────────────────────
 // ⚠️  UPDATE THIS URL after every new GAS deployment (Deploy → Manage → New Version)
-var GAS_URL = 'https://script.google.com/macros/s/AKfycbxdq83smG9bv2wJxFIx1KDIptbbCzbbcNolMA3fcHyLb5znNEC0OgqPfZG7lMgR6hPK/exec';
+var GAS_URL = 'https://script.google.com/macros/s/AKfycbwRvhxxaf7t1Vnvqp22cbSfwTBhSW1wi14iY0UQRuiWix-8P57a_x17cIgxQHX3DgzV-Q/exec';
 
 var SMART_DAYS = { '1. Hot':3, '2. Warm':7, '3. Cold':30, '4. Orderbook':14 };
 
@@ -689,7 +689,7 @@ function getCatClass(c) {
   return c==='1. Hot'?'cat-hot':c==='2. Warm'?'cat-warm':c==='3. Cold'?'cat-cold':c==='4. Orderbook'?'cat-order':'cat-cold';
 }
 function getCatShort(c) {
-  return {'1. Hot':'Hot','2. Warm':'Warm','3. Cold':'Cold','4. Orderbook':'Orderbook','5. Out':'Out','6. Concluded':'Concluded'}[c]||c.replace(/^\d+\. /,'');
+  return {' 1. Hot':'Hot','2. Warm':'Warm','3. Cold':'Cold','4. Orderbook':'Orderbook','5. Out':'Out','6. Concluded':'Concluded'}[c]||c.replace(/^\d+\. /,'');
 }
 function getCatLabel(c) {
   var m={'1. Hot':'🔴 Hot','2. Warm':'🟡 Warm','3. Cold':'🔵 Cold','4. Orderbook':'📦 Orderbook','5. Out':'⚪ Out','6. Concluded':'✅ Concluded'};
